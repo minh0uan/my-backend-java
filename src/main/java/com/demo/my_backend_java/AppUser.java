@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity 
-@Table(name = "users") // Fixed: Cannot use "user" in Postgres
+@Table(name = "users") 
 public class AppUser {
     
     @Id
