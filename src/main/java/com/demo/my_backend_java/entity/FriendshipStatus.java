@@ -1,4 +1,4 @@
-package com.demo.my_backend_java;
+package com.demo.my_backend_java.entity;
 
 public enum FriendshipStatus {
     PENDING,

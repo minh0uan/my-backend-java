@@ -1,4 +1,4 @@
-package com.demo.my_backend_java;
+package com.demo.my_backend_java.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
