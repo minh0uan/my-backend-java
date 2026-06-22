@@ -12,7 +12,4 @@ public class TestController {
     public String chaoSinhVien() {
         return "Kết nối thành công! Đây là dữ liệu trả về từ Java Backend của em.";
     }
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
-    }
 }
