@@ -1,5 +1,7 @@
 package com.demo.my_backend_java.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +14,10 @@ public interface AppUserRepo extends JpaRepository<AppUser, Long>{
     boolean existByEmail(String email);
 
     boolean existByPhoneNum(String phone);
+
+    Optional<AppUser> findByEmail(String email);
+
+    Optional<AppUser> findByPhone(String phone);
+
+    Optional<AppUser> findByUserName(String username);
 } 

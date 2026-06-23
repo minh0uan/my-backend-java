@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import com.demo.my_backend_java.entity.AppUser;
 import com.demo.my_backend_java.repository.AppUserRepo;
 
@@ -49,8 +50,24 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody AppUser loginRequest) {
-        return ResponseEntity.ok("Login endpoint");
-    }
-    
+        Optional<AppUser> dataUserEmail = userRepo.findByEmail(loginRequest.getEmail());
+        Optional<AppUser> dataUserPhone = userRepo.findByPhone(loginRequest.getPhone());
+        Optional<AppUser> dataUsername = userRepo.findByUserName(loginRequest.getUsername());
+
+        if (dataUserEmail.isPresent() && dataUserEmail.get().getPassword().equals(loginRequest.getPassword())) {
+            return ResponseEntity.ok("Login Successful By Email");
+        }
+        
+        if (dataUserPhone.isPresent() && dataUserPhone.get().getPassword().equals(loginRequest.getPassword())) {
+            return ResponseEntity.ok("Login Successful By Phone Number");
+        }
+        
+        if (dataUsername.isPresent() && dataUsername.get().getPassword().equals(loginRequest.getPassword())) {
+            return (ResponseEntity.ok("Login Successful By Username"));
+        } 
+
+        return ResponseEntity.status(401).body("Error: Invalid");
+        
+    }   
     
 }
