@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.my_backend_java.entity.Mark;
-import com.demo.my_backend_java.repository.MarkRepo;
 import com.demo.my_backend_java.service.MarkService;
 
 @RestController
@@ -27,7 +26,7 @@ public class MarkController {
     @PostMapping("/drop")
     public ResponseEntity<?> dropMark(@RequestBody Mark mark)  {
         try {
-            Mark savedMark = markService.save(mark);
+            Mark savedMark = markService.dropMark(mark);
             return ResponseEntity.ok(savedMark);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -35,7 +34,8 @@ public class MarkController {
     }
     
     @GetMapping("/all-marks/{id}") 
-    private List<Mark> getAllMark(@PathVariable Long id) {
-        List<Mark> marks = markService.getMarkInfo(id);
+    private ResponseEntity<List<Mark>> getAllMark(@PathVariable Long id) {
+        List<Mark> marks = markService.getAllMark(id);
+        return ResponseEntity.ok(marks);
     }
 }
