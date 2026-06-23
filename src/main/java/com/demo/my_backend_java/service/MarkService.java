@@ -26,6 +26,18 @@ public class MarkService {
         return markRepo.save(mark);
     }
 
+    public List<Mark> getNearbyMarks(Double lat, Double lng) {
+        return markRepo.findNearbyMarks(lat, lng);
+    }
+
+    public Mark addView(Long id) throws Exception {
+        Mark mark = markRepo.findById(id)
+            .orElseThrow(() -> new Exception("Mark not found"));
+        
+        mark.setView(mark.getView() + 1);
+        return markRepo.save(mark);
+    }
+
     public List<Mark> getAllMark(Long id) {
         return markRepo.findAll().stream()
             .filter(f -> f.getAppUser().getId().equals(id))

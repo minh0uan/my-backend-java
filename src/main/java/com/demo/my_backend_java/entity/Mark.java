@@ -26,6 +26,7 @@ public class Mark {
     private Double latitude;
     private Double longitude;
 
+    private int view = 0;
 
     private boolean privacy; 
 
@@ -63,6 +64,14 @@ public class Mark {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public int getView() {
+        return view;
+    }
+
+    public void setView(int view) {
+        this.view = view;
     }
 
     public boolean isPrivacy() {
