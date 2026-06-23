@@ -1,7 +1,5 @@
 package com.demo.my_backend_java.controller;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,63 +9,43 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.demo.my_backend_java.entity.AppUser;
-import com.demo.my_backend_java.repository.AppUserRepo;
+import com.demo.my_backend_java.service.UserService;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
     
     @Autowired
-    private AppUserRepo userRepo;
+    private UserService userService; // Injecting Service instead of Repo
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody AppUser user) {
-
-        if (userRepo.existByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body("Error: Email In Used");
+        try {
+            AppUser savedUser = userService.registerUser(user);
+            return ResponseEntity.ok(savedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        if (userRepo.existByPhoneNum(user.getPhone())) {
-            return ResponseEntity.badRequest().body("Error: Phone Number In Used");
-        }
-
-        AppUser savedUser = userRepo.save(user);
-        return ResponseEntity.ok(savedUser);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AppUser> getUserProfile(@PathVariable Long id) {
-        Optional<AppUser> user = userRepo.findById(id);
-
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
-        } else {
+    public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
+        try {
+            AppUser user = userService.getUserProfile(id);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody AppUser loginRequest) {
-        Optional<AppUser> dataUserEmail = userRepo.findByEmail(loginRequest.getEmail());
-        Optional<AppUser> dataUserPhone = userRepo.findByPhone(loginRequest.getPhone());
-        Optional<AppUser> dataUsername = userRepo.findByUserName(loginRequest.getUsername());
-
-        if (dataUserEmail.isPresent() && dataUserEmail.get().getPassword().equals(loginRequest.getPassword())) {
-            return ResponseEntity.ok("Login Successful By Email");
+        try {
+            String successMessage = userService.loginUser(loginRequest);
+            return ResponseEntity.ok(successMessage);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(e.getMessage());
         }
-        
-        if (dataUserPhone.isPresent() && dataUserPhone.get().getPassword().equals(loginRequest.getPassword())) {
-            return ResponseEntity.ok("Login Successful By Phone Number");
-        }
-        
-        if (dataUsername.isPresent() && dataUsername.get().getPassword().equals(loginRequest.getPassword())) {
-            return (ResponseEntity.ok("Login Successful By Username"));
-        } 
-
-        return ResponseEntity.status(401).body("Error: Invalid");
-        
     }   
-    
 }
