@@ -32,12 +32,12 @@ public class FriendshipController {
     public ResponseEntity<?> requestFriend(@RequestBody Friendship friendship) {
         //check if the does the sender exist?
         if (friendship.getRequester() == null|| !userRepo.existsById(friendship.getRequester().getId())) {
-            return ResponseEntity.badRequest().body("Error: Sender Not Exist");
+            return ResponseEntity.badRequest().body("Error: Sender Does Not Exist");
         }
 
         //check if the receiver exist
         if (friendship.getReceiver() == null || !userRepo.existsById(friendship.getReceiver().getId())) {
-            return ResponseEntity.badRequest().body("Error: Receiver Not Exist");
+            return ResponseEntity.badRequest().body("Error: Receiver Does Not Exist");
         }
 
         //send request to themself 

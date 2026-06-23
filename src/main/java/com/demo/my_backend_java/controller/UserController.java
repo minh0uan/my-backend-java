@@ -22,7 +22,16 @@ public class UserController {
     private AppUserRepo userRepo;
 
     @PostMapping("/register")
-    public ResponseEntity<AppUser> registerUser(@RequestBody AppUser user) {
+    public ResponseEntity<?> registerUser(@RequestBody AppUser user) {
+
+        if (userRepo.existByEmail(user.getEmail())) {
+            return ResponseEntity.badRequest().body("Error: Email In Used");
+        }
+
+        if (userRepo.existByPhoneNum(user.getPhone())) {
+            return ResponseEntity.badRequest().body("Error: Phone Number In Used");
+        }
+
         AppUser savedUser = userRepo.save(user);
         return ResponseEntity.ok(savedUser);
     }
