@@ -27,6 +27,8 @@ public class Mark {
     private Double longitude;
 
     private int view = 0;
+    private int like = 0;
+    private int cmt = 0;
 
     private boolean privacy; 
 
@@ -72,6 +74,22 @@ public class Mark {
 
     public void setView(int view) {
         this.view = view;
+    }
+
+    public int getLikeCount() {
+        return like;
+    }
+
+    public void setLikeCount(int like) {
+        this.like = like;
+    }
+
+    public int getCmtCount() {
+        return cmt;
+    }
+
+    public void setCmtCount(int cmt) {
+        this.cmt = cmt;
     }
 
     public boolean isPrivacy() {

@@ -7,5 +7,5 @@ import com.demo.my_backend_java.entity.Like;
 
 @Repository
 public interface LikeRepo extends JpaRepository<Like, Long>{
-    
+    boolean existsByMarkIdAndUserId(Long markId, Long userId);
 }
