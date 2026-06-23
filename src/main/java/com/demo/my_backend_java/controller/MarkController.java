@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.my_backend_java.entity.Mark;
 import com.demo.my_backend_java.repository.MarkRepo;
+import com.demo.my_backend_java.service.MarkService;
 
 @RestController
 @RequestMapping("api/marks")
 public class MarkController {
     
     @Autowired
-    private MarkRepo markService; // Injecting Service instead of Repo
+    private MarkService markService; // Injecting Service instead of Repo
 
 
     @PostMapping("/drop")
@@ -35,18 +36,6 @@ public class MarkController {
     
     @GetMapping("/all-marks/{id}") 
     private List<Mark> getAllMark(@PathVariable Long id) {
-        try {
-            List<Mark> allMark = markService.findAll();
-
-            List<Mark> validMark = allMark.stream()
-            .filter(f -> f.getAppUser().getId().equals(id)).toList();
-
-        return validMark;
-            
-        } catch (Exception e) {
-            return (List<Mark>) ResponseEntity.status(404).body(e.getMessage());
-        }
+        List<Mark> marks = markService.getMarkInfo(id);
     }
-    
-
 }
