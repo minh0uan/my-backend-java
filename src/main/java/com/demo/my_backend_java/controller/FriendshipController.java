@@ -1,7 +1,6 @@
 package com.demo.my_backend_java.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,78 +13,48 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.my_backend_java.entity.Friendship;
-import com.demo.my_backend_java.entity.FriendshipStatus;
-import com.demo.my_backend_java.repository.AppUserRepo;
-import com.demo.my_backend_java.repository.FriendshipRepo;
+import com.demo.my_backend_java.service.FriendshipService;
 
 @RestController
 @RequestMapping("/api/friendships")
 public class FriendshipController {
 
     @Autowired
-    private FriendshipRepo friendRepo;
-
-    @Autowired
-    private AppUserRepo userRepo;
+    private FriendshipService friendService;
 
     @PostMapping("/request")
     public ResponseEntity<?> requestFriend(@RequestBody Friendship friendship) {
-        //check if the does the sender exist?
-        if (friendship.getRequester() == null|| !userRepo.existsById(friendship.getRequester().getId())) {
-            return ResponseEntity.badRequest().body("Error: Sender Does Not Exist");
+        try {
+            Friendship savedFriendship = friendService.requestFriend(friendship);
+            return ResponseEntity.ok(savedFriendship); 
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        //check if the receiver exist
-        if (friendship.getReceiver() == null || !userRepo.existsById(friendship.getReceiver().getId())) {
-            return ResponseEntity.badRequest().body("Error: Receiver Does Not Exist");
-        }
-
-        //send request to themself 
-        if (friendship.getRequester().getId().equals(friendship.getReceiver().getId())) {
-            return ResponseEntity.badRequest().body("Error: Cannot Send Request To Self");
-        }
-
-        friendship.setStatus(FriendshipStatus.PENDING);
-        Friendship savedFriendship = friendRepo.save(friendship);
-        return ResponseEntity.ok(savedFriendship);
     }
 
     @PutMapping("/accepted/{id}") 
-    public ResponseEntity<Friendship> acceptFriendStatus(@PathVariable Long id) {
-        Optional<Friendship> optionalFriendship = friendRepo.findById(id);
-
-        if (optionalFriendship.isPresent()) {
-            Friendship friendship = optionalFriendship.get();
-            friendship.setStatus(FriendshipStatus.ACCEPTED);
-            Friendship updateFriend = friendRepo.save(friendship);
+    public ResponseEntity<?> acceptFriendStatus(@PathVariable Long id) {
+        try {
+            Friendship updateFriend = friendService.acceptFriendStatus(id);
             return ResponseEntity.ok(updateFriend);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PutMapping("/decline/{id}") 
-    public ResponseEntity<Friendship> declineFriendStatus(@PathVariable Long id) {
-        Optional<Friendship> optionalFriendship = friendRepo.findById(id);
-
-        if (optionalFriendship.isPresent()) {
-            Friendship friendship = optionalFriendship.get();
-            friendship.setStatus(FriendshipStatus.REJECTED);
-            Friendship updateFriend = friendRepo.save(friendship);
+    public ResponseEntity<?> declineFriendStatus(@PathVariable Long id) {
+        try {
+            Friendship updateFriend = friendService.declineFriendStatus(id);
             return ResponseEntity.ok(updateFriend);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/list") 
     public ResponseEntity<List<Friendship>> getAllFriend(@PathVariable Long id) {
-        List<Friendship> allFriend = friendRepo.findAll();
-
-        List<Friendship> acceptedFriend = allFriend.stream()
-            .filter(f -> f.getStatus() == FriendshipStatus.ACCEPTED)
-            .filter(f -> f.getReceiver().getId().equals(id) || f.getRequester().getId().equals(id))
-            .toList();
+        List<Friendship> acceptedFriend = friendService.getAllFriend(id);
 
         return ResponseEntity.ok(acceptedFriend);
     }
