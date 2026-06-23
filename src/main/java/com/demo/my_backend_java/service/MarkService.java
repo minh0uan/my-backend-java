@@ -3,11 +3,13 @@ package com.demo.my_backend_java.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.entity.Mark;
 import com.demo.my_backend_java.repository.AppUserRepo;
 import com.demo.my_backend_java.repository.MarkRepo;
 
+@Service
 public class MarkService {
     
     @Autowired

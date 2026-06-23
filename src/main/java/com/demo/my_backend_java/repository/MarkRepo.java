@@ -10,9 +10,9 @@ import com.demo.my_backend_java.entity.Mark;
 @Repository
 public interface MarkRepo extends JpaRepository<Mark, Long>{
 
-    boolean existBylongitude(double longitude);
+    boolean existsByLongitude(double longitude);
 
-    boolean existByLatitude(double latitude);
+    boolean existsByLatitude(double latitude);
 
     Optional<Mark> findByLongitude(double longitude);
 

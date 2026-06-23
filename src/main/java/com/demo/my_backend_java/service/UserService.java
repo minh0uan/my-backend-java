@@ -16,14 +16,14 @@ public class UserService {
 
     public AppUser registerUser(AppUser user) throws Exception {
         
-        if (userRepo.existByEmail(user.getEmail())) {
+        if (userRepo.existsByEmail(user.getEmail())) {
             throw new Exception("Error: Email In Used");
         }
-        if (userRepo.existByPhoneNum(user.getPhone())) {
+        if (userRepo.existsByPhone(user.getPhone())) {
             throw new Exception("Error: Phone Number In Used");
         }
 
-        if (userRepo.existByUsername(user.getUsername())) {
+        if (userRepo.existsByUsername(user.getUsername())) {
             throw new Exception("Error: User Name In Used");
         }
         return userRepo.save(user);
@@ -37,7 +37,7 @@ public class UserService {
         
         Optional<AppUser> dataUserEmail = userRepo.findByEmail(loginRequest.getEmail());
         Optional<AppUser> dataUserPhone = userRepo.findByPhone(loginRequest.getPhone());
-        Optional<AppUser> dataUsername = userRepo.findByUserName(loginRequest.getUsername());
+        Optional<AppUser> dataUsername = userRepo.findByUsername(loginRequest.getUsername());
 
         if (dataUserEmail.isPresent() && dataUserEmail.get().getPassword().equals(loginRequest.getPassword())) {
             return "Login Successful By Email";

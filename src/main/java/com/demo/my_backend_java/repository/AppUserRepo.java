@@ -11,15 +11,15 @@ import com.demo.my_backend_java.entity.AppUser;
 public interface AppUserRepo extends JpaRepository<AppUser, Long>{
     //repo for string boot to automatically update, insert, delete, ... 
 
-    boolean existByEmail(String email);
+    boolean existsByEmail(String email);
 
-    boolean existByPhoneNum(String phone);
+    boolean existsByPhone(String phone);
 
-    boolean existByUsername(String username);
+    boolean existsByUsername(String username);
 
     Optional<AppUser> findByEmail(String email);
 
     Optional<AppUser> findByPhone(String phone);
 
-    Optional<AppUser> findByUserName(String username);
+    Optional<AppUser> findByUsername(String username);
 } 
