@@ -28,8 +28,15 @@ public class FriendshipService {
             throw new Exception("Error: Receiver Does Not Exist");
         }
 
-        if (friendship.getRequester().getId().equals(friendship.getReceiver().getId())) {
+        Long requesterId = friendship.getRequester().getId();
+        Long receiverId = friendship.getReceiver().getId();
+
+        if (requesterId.equals(receiverId)) {
             throw new Exception("Error: Cannot Send Request To Self");
+        }
+
+        if (friendRepo.friendshipExists(requesterId, receiverId)) {
+            throw new Exception("Error: Answer The Prior Request");
         }
 
         friendship.setStatus(FriendshipStatus.PENDING);
