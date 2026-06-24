@@ -52,7 +52,7 @@ public class FriendshipController {
         }
     }
 
-    @GetMapping("/list") 
+    @GetMapping("/list/{id}") 
     public ResponseEntity<List<Friendship>> getAllFriend(@PathVariable Long id) {
         List<Friendship> acceptedFriend = friendService.getAllFriend(id);
 

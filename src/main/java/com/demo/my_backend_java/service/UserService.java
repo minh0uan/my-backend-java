@@ -22,7 +22,6 @@ public class UserService {
         if (userRepo.existsByPhone(user.getPhone())) {
             throw new Exception("Error: Phone Number In Used");
         }
-
         if (userRepo.existsByUsername(user.getUsername())) {
             throw new Exception("Error: User Name In Used");
         }
