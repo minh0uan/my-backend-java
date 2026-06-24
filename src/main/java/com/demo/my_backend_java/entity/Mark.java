@@ -1,5 +1,6 @@
 package com.demo.my_backend_java.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,8 +27,13 @@ public class Mark {
     private Double latitude;
     private Double longitude;
 
+    @Column(name = "view_count")
     private int viewCount = 0;
+
+    @Column(name = "like_count")
     private int likeCount = 0;
+
+    @Column(name = "cmt_count")
     private int cmtCount = 0;
 
     private boolean privacy; 
