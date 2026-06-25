@@ -1,5 +1,8 @@
 package com.demo.my_backend_java.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,10 +24,12 @@ public class Friendship {
 
     @ManyToOne
     @JoinColumn(name = "requested_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private AppUser requester;
 
     @ManyToOne
     @JoinColumn(name = "receiver_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private AppUser receiver;
 
     @Enumerated(EnumType.STRING) 
