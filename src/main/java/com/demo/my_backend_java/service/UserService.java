@@ -52,4 +52,14 @@ public class UserService {
 
         throw new Exception("Error: Invalid credentials");
     }
+
+    public String deleteUser(Long id) throws Exception {
+
+        if (!userRepo.existsById(id)) {
+            throw new Exception("User Not Found");
+        }
+        
+        userRepo.deleteById(id);
+        return "Account Deletion Successful";
+    }
 }

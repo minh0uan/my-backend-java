@@ -2,6 +2,7 @@ package com.demo.my_backend_java.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.my_backend_java.entity.AppUser;
 import com.demo.my_backend_java.service.UserService;
+
+import ch.qos.logback.core.encoder.EchoEncoder;
 
 @RestController
 @RequestMapping("/api/user")
@@ -48,4 +51,13 @@ public class UserController {
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }   
+
+    @DeleteMapping("/delete/{id}")
+    public String deleteUser(@PathVariable Long id) throws Exception {
+        try {
+            return userService.deleteUser(id);
+        } catch (Exception e) {
+            return e.getMessage();
+        } 
+    }
 }
