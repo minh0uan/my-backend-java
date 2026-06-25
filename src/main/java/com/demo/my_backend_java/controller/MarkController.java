@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,5 +85,14 @@ public class MarkController {
     public ResponseEntity<List<Mark>> getAllMark(@PathVariable Long id) {
         List<Mark> marks = markService.getAllMark(id);
         return ResponseEntity.ok(marks);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public String deleteMark(@PathVariable Long id) throws Exception {
+        try {
+            return markService.deleteMark(id);
+        } catch (Exception e) {
+            return e.getMessage();
+        } 
     }
 }

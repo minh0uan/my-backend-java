@@ -95,4 +95,14 @@ public class MarkService {
             .filter(f -> f.getAppUser().getId().equals(id))
             .toList();
     }
+
+    public String deleteMark(Long id) throws Exception {
+
+        if (!markRepo.existsById(id)) {
+            throw new Exception("Mark Not Found");
+        }
+        
+        markRepo.deleteById(id);
+        return "Mark Deletion Successful";
+    }
 }

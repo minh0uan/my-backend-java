@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.demo.my_backend_java.entity.AppUser;
 import com.demo.my_backend_java.service.UserService;
 
-import ch.qos.logback.core.encoder.EchoEncoder;
-
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
