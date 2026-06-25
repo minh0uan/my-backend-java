@@ -96,13 +96,28 @@ public class MarkService {
             .toList();
     }
 
-    public String deleteMark(Long id) throws Exception {
+    public void deleteLike(Long id) throws Exception {
+        if(!likeRepo.existsById(id)) {
+            throw new RuntimeException("Mark Not Found");
+        }
+
+        likeRepo.deleteById(id);
+    }
+
+    public void deleteCmt(Long id) throws Exception {
+        if(!cmtRepo.existsById(id)) {
+            throw new RuntimeException("Mark Not Found"); 
+        }
+
+        cmtRepo.deleteById(id); 
+    }
+
+    public void deleteMark(Long id) throws Exception {
 
         if (!markRepo.existsById(id)) {
-            throw new Exception("Mark Not Found");
+            throw new RuntimeException("Mark Not Found");
         }
         
         markRepo.deleteById(id);
-        return "Mark Deletion Successful";
     }
 }

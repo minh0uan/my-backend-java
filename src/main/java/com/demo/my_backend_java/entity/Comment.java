@@ -21,11 +21,12 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) 
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OnDelete(action = OnDeleteAction.CASCADE) //delete dependencies 
     private AppUser user;
 
     @ManyToOne
     @JoinColumn(name = "mark_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     public Mark mark;
 
     private String content;

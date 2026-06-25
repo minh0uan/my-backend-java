@@ -26,13 +26,28 @@ public class Like {
 
     @ManyToOne
     @JoinColumn(name = "mark_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Mark mark;
 
     public Like() {}
 
-    public Long getId() { return id; }
-    public AppUser getUser() { return user; }
-    public void setUser(AppUser user) { this.user = user; }
-    public Mark getMark() { return mark; }
-    public void setMark(Mark mark) { this.mark = mark; }
+    public Long getId() { 
+        return id; 
+    }
+
+    public AppUser getUser() { 
+        return user; 
+    }
+
+    public void setUser(AppUser user) { 
+        this.user = user; 
+    }
+
+    public Mark getMark() { 
+        return mark; 
+    }
+
+    public void setMark(Mark mark) { 
+        this.mark = mark; 
+    }
 }

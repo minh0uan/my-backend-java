@@ -87,12 +87,39 @@ public class MarkController {
         return ResponseEntity.ok(marks);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public String deleteMark(@PathVariable Long id) throws Exception {
+    @DeleteMapping("/delete/like/{id}")
+    public ResponseEntity<String> deleteLike(@PathVariable Long id) throws Exception {
         try {
-            return markService.deleteMark(id);
+            markService.deleteLike(id);
+            return ResponseEntity.ok("Like Deleted");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
-            return e.getMessage();
-        } 
+            return ResponseEntity.status(500).body("Error: Could Not Delete Try Again Later");
+        }
+    }
+
+    @DeleteMapping("/delete/comment/{id}")
+    public ResponseEntity<String> deleteCmt(@PathVariable Long id) throws Exception {
+        try {
+            markService.deleteCmt(id);
+            return ResponseEntity.ok("Comment Deleted");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: Could Not Delete Try Again Later");
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteMark(@PathVariable Long id) throws Exception {
+        try {
+            markService.deleteMark(id);
+            return ResponseEntity.ok("Mark Deleted");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: Could Not Delete Try Again Later");
+        }
     }
 }
