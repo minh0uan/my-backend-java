@@ -51,11 +51,14 @@ public class UserController {
     }   
 
     @DeleteMapping("/delete/{id}")
-    public String deleteUser(@PathVariable Long id) throws Exception {
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) throws Exception {
         try {
-            return userService.deleteUser(id);
+            userService.deleteUser(id);
+            return ResponseEntity.ok("Account Delete Sucessful");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
-            return e.getMessage();
-        } 
+            return ResponseEntity.status(500).body("Error: Could Not Delete User");
+        }
     }
 }
