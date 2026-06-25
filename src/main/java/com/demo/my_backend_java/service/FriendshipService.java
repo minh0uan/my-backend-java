@@ -1,6 +1,7 @@
 package com.demo.my_backend_java.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,9 +36,13 @@ public class FriendshipService {
             throw new Exception("Error: Cannot Send Request To Self");
         }
 
-        if (friendRepo.friendshipExists(requesterId, receiverId)) {
-            throw new Exception("Error: Answer The Prior Request");
-        }
+        Optional<Friendship> friend = friendRepo.findFriendshipBetweenUsers(requesterId, receiverId);
+
+        if (friend.isPresent() && friend.get().getStatus() == FriendshipStatus.ACCEPTED) {
+            throw new Exception("Error: Already Friend");
+        } else if (friend.isPresent() && friend.get().getStatus() == FriendshipStatus.PENDING) {
+            throw new Exception("Answer/Wait For The Prior Request");
+        } 
 
         friendship.setStatus(FriendshipStatus.PENDING);
         return friendRepo.save(friendship);
@@ -64,5 +69,17 @@ public class FriendshipService {
             .filter(f -> f.getStatus() == FriendshipStatus.ACCEPTED)
             .filter(f -> f.getReceiver().getId().equals(id) || f.getRequester().getId().equals(id))
             .toList();
+    }
+
+    //this service can be use for both pending and accepted relation ship 
+    //so it can also be use to cancel user friend request   
+    public void deleteFriend(Long idUser1, Long idUser2) {
+        Optional<Friendship> friendship = friendRepo.findFriendshipBetweenUsers(idUser1, idUser2);
+
+        if (friendship.isPresent() && friendship.get().getStatus() != FriendshipStatus.REJECTED) {
+            friendRepo.deleteById(friendship.get().getId());   
+        } else {
+            throw new RuntimeException("Friendship Does Not Exist");
+        }
     }
 }

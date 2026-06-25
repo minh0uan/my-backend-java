@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.my_backend_java.entity.Friendship;
@@ -57,5 +59,17 @@ public class FriendshipController {
         List<Friendship> acceptedFriend = friendService.getAllFriend(id);
 
         return ResponseEntity.ok(acceptedFriend);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteFriend(@RequestParam Long idUser1, @RequestParam Long idUser2) {
+        try {
+            friendService.deleteFriend(idUser1, idUser2);
+            return ResponseEntity.ok("Friend Deleted");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: Could Not Delete Try Again Later");
+        }
     }
 }
