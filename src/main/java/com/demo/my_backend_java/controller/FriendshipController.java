@@ -34,7 +34,7 @@ public class FriendshipController {
         }
     }
 
-    @PutMapping("/accepted/{id}") 
+    @PutMapping("/accept/{id}") 
     public ResponseEntity<?> acceptFriendStatus(@PathVariable Long id) {
         try {
             Friendship updateFriend = friendService.acceptFriendStatus(id);
@@ -61,8 +61,8 @@ public class FriendshipController {
         return ResponseEntity.ok(acceptedFriend);
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> deleteFriend(@RequestParam Long idUser1, @RequestParam Long idUser2) {
+    @DeleteMapping("/delete-friend/{id}")
+    public ResponseEntity<String> deleteFriend(@RequestParam Long idUser1, @PathVariable("id") Long idUser2) {
         try {
             friendService.deleteFriend(idUser1, idUser2);
             return ResponseEntity.ok("Friend Deleted");
