@@ -65,10 +65,7 @@ public class FriendshipService {
     }
 
     public List<Friendship> getAllFriend(Long id) {
-        return friendRepo.findAll().stream()
-            .filter(f -> f.getStatus() == FriendshipStatus.ACCEPTED)
-            .filter(f -> f.getReceiver().getId().equals(id) || f.getRequester().getId().equals(id))
-            .toList();
+        return friendRepo.findAcceptedFriendships(id);
     }
 
     //this service can be use for both pending and accepted relation ship 

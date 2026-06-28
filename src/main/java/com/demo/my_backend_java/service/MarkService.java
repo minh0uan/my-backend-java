@@ -147,9 +147,7 @@ public class MarkService {
     }
 
     public List<MarkDto> getAllMark(Long id) {
-        List<Mark> rawMarks = markRepo.findAll().stream()
-            .filter(f -> f.getAppUser().getId().equals(id))
-            .toList();
+        List<Mark> rawMarks = markRepo.findAllByAppUserId(id);
 
         List<MarkDto> safeMarks = new ArrayList<>();
 
