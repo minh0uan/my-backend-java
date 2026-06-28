@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.yaml.snakeyaml.error.MarkedYAMLException;
 
+import com.demo.my_backend_java.dto.MarkDto;
 import com.demo.my_backend_java.entity.Comment;
 import com.demo.my_backend_java.entity.Mark;
 import com.demo.my_backend_java.service.MarkService;
@@ -28,7 +30,7 @@ public class MarkController {
     @PostMapping("/drop")
     public ResponseEntity<?> dropMark(@RequestBody Mark mark)  {
         try {
-            Mark savedMark = markService.dropMark(mark);
+            MarkDto savedMark = markService.dropMark(mark);
             return ResponseEntity.ok(savedMark);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -36,9 +38,9 @@ public class MarkController {
     }
 
     @GetMapping("/nearby")
-    public ResponseEntity<List<Mark>> getNearbyMarks(@RequestParam Double lat, @RequestParam Double lng) {
+    public ResponseEntity<List<MarkDto>> getNearbyMarks(@RequestParam Double lat, @RequestParam Double lng) {
         
-        List<Mark> nearby = markService.getNearbyMarks(lat, lng);
+        List<MarkDto> nearby = markService.getNearbyMarks(lat, lng);
 
         return ResponseEntity.ok(nearby);
     }
@@ -46,7 +48,7 @@ public class MarkController {
     @PostMapping("/{id}/view") 
     public ResponseEntity<?> addView(@PathVariable Long id) {
         try {
-            Mark markView = markService.addView(id);
+            MarkDto markView = markService.addView(id);
             return ResponseEntity.ok(markView);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -82,8 +84,8 @@ public class MarkController {
 
     
     @GetMapping("/all-marks/{id}") 
-    public ResponseEntity<List<Mark>> getAllMark(@PathVariable Long id) {
-        List<Mark> marks = markService.getAllMark(id);
+    public ResponseEntity<List<MarkDto>> getAllMark(@PathVariable Long id) {
+        List<MarkDto> marks = markService.getAllMark(id);
         return ResponseEntity.ok(marks);
     }
 

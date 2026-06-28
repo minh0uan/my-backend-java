@@ -2,13 +2,12 @@ package com.demo.my_backend_java.dto;
 
 public record MarkDto(
     Long id,
-    String username,
+    UserDto author, 
     String message,
-    int view_count,
-    int like_count,
-    int cmt_count,
-    int privacy
-) {
-} 
-    
-
+    Double latitude,
+    Double longitude,
+    int viewCount,
+    int likeCount,
+    int cmtCount,
+    boolean privacy
+) {}

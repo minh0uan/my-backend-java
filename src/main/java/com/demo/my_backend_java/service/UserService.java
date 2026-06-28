@@ -27,7 +27,7 @@ public class UserService {
             throw new Exception("Error: User Name In Used");
         }
 
-        AppUser  savedUSer = userRepo.save(user);
+        AppUser savedUSer = userRepo.save(user);
 
         return new UserDto(savedUSer.getId(), savedUSer.getUsername());
     }

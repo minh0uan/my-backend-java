@@ -1,10 +1,13 @@
 package com.demo.my_backend_java.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.demo.my_backend_java.dto.MarkDto;
+import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.AppUser;
 import com.demo.my_backend_java.entity.Comment;
 import com.demo.my_backend_java.entity.Like;
@@ -29,24 +32,77 @@ public class MarkService {
     @Autowired
     private LikeRepo likeRepo;
 
-    public Mark dropMark(Mark mark) throws Exception {
+    public MarkDto dropMark(Mark mark) throws Exception {
         if (mark.getAppUser() == null || !userRepo.existsById(mark.getAppUser().getId())) { 
             throw new Exception("User Does Not Exist");
         }
 
-        return markRepo.save(mark);
+        Mark savedMark = markRepo.save(mark);
+
+        AppUser author = savedMark.getAppUser();
+        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+
+        return new MarkDto(
+            savedMark.getId(),
+            safeAuthor,
+            savedMark.getMessage(),
+            savedMark.getLatitude(),
+            savedMark.getLongitude(),
+            savedMark.getView(),
+            savedMark.getLikeCount(),
+            savedMark.getCmtCount(),
+            savedMark.isPrivacy()
+        );
     }
 
-    public List<Mark> getNearbyMarks(Double lat, Double lng) {
-        return markRepo.findNearbyMarks(lat, lng);
+    public List<MarkDto> getNearbyMarks(Double lat, Double lng) {
+        List<Mark> rawMarks = markRepo.findNearbyMarks(lat, lng);
+
+        List<MarkDto> safeMarks = new ArrayList<>();
+
+        for (Mark mark : rawMarks) {
+            AppUser author = mark.getAppUser();
+            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+
+            MarkDto dto = new MarkDto(
+                mark.getId(),
+                safeAuthor,
+                mark.getMessage(),
+                mark.getLatitude(),
+                mark.getLongitude(),
+                mark.getView(),
+                mark.getLikeCount(),
+                mark.getCmtCount(),
+                mark.isPrivacy()
+            );
+
+            safeMarks.add(dto);
+        }
+
+        return safeMarks;
     }
 
-    public Mark addView(Long id) throws Exception {
+    public MarkDto addView(Long id) throws Exception {
         Mark mark = markRepo.findById(id)
             .orElseThrow(() -> new Exception("Mark not found"));
         
         mark.setView(mark.getView() + 1);
-        return markRepo.save(mark);
+        Mark savedMark =  markRepo.save(mark);
+
+        AppUser author = savedMark.getAppUser();
+        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+
+        return new MarkDto(
+            savedMark.getId(),
+            safeAuthor,
+            savedMark.getMessage(),
+            savedMark.getLatitude(),
+            savedMark.getLongitude(),
+            savedMark.getView(),
+            savedMark.getLikeCount(),
+            savedMark.getCmtCount(),
+            savedMark.isPrivacy()
+        );
     }
 
     public Comment addComment(Long markId, Comment cmt) throws Exception {
@@ -90,10 +146,33 @@ public class MarkService {
         return "Mark Liked";
     }
 
-    public List<Mark> getAllMark(Long id) {
-        return markRepo.findAll().stream()
+    public List<MarkDto> getAllMark(Long id) {
+        List<Mark> rawMarks = markRepo.findAll().stream()
             .filter(f -> f.getAppUser().getId().equals(id))
             .toList();
+
+        List<MarkDto> safeMarks = new ArrayList<>();
+
+        for (Mark mark : rawMarks) {
+            AppUser author = mark.getAppUser();
+            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+
+            MarkDto dto = new MarkDto(
+                mark.getId(),
+                safeAuthor,
+                mark.getMessage(),
+                mark.getLatitude(),
+                mark.getLongitude(),
+                mark.getView(),
+                mark.getLikeCount(),
+                mark.getCmtCount(),
+                mark.isPrivacy()
+            );
+
+            safeMarks.add(dto);
+        }
+
+        return safeMarks;
     }
 
     public void deleteLike(Long id) throws Exception {
