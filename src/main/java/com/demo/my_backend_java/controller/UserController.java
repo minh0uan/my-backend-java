@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.AppUser;
 import com.demo.my_backend_java.service.UserService;
 
@@ -23,7 +24,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody AppUser user) {
         try {
-            AppUser savedUser = userService.registerUser(user);
+            UserDto savedUser = userService.registerUser(user);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -33,7 +34,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
         try {
-            AppUser user = userService.getUserProfile(id);
+            UserDto user = userService.getUserProfile(id);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

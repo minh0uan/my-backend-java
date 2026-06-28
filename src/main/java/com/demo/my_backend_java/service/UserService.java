@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.AppUser;
 import com.demo.my_backend_java.repository.AppUserRepo;
 
@@ -14,7 +15,7 @@ public class UserService {
     @Autowired
     private AppUserRepo userRepo;
 
-    public AppUser registerUser(AppUser user) throws Exception {
+    public UserDto registerUser(AppUser user) throws Exception {
         
         if (userRepo.existsByEmail(user.getEmail())) {
             throw new Exception("Error: Email In Used");
@@ -25,11 +26,16 @@ public class UserService {
         if (userRepo.existsByUsername(user.getUsername())) {
             throw new Exception("Error: User Name In Used");
         }
-        return userRepo.save(user);
+
+        AppUser  savedUSer = userRepo.save(user);
+
+        return new UserDto(savedUSer.getId(), savedUSer.getUsername());
     }
 
-    public AppUser getUserProfile(Long id) throws Exception {
-        return userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
+    public UserDto getUserProfile(Long id) throws Exception {
+        AppUser user =  userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
+
+        return new UserDto(user.getId(), user.getUsername());
     }
 
     public String loginUser(AppUser loginRequest) throws Exception {
