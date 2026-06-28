@@ -1,11 +1,15 @@
 package com.demo.my_backend_java.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.demo.my_backend_java.dto.FriendDto;
+import com.demo.my_backend_java.dto.UserDto;
+import com.demo.my_backend_java.entity.AppUser;
 import com.demo.my_backend_java.entity.Friendship;
 import com.demo.my_backend_java.entity.FriendshipStatus;
 import com.demo.my_backend_java.repository.AppUserRepo;
@@ -20,7 +24,7 @@ public class FriendshipService {
     @Autowired
     private AppUserRepo userRepo;
 
-    public Friendship requestFriend(Friendship friendship) throws Exception {
+    public FriendDto requestFriend(Friendship friendship) throws Exception {
         if (friendship.getRequester() == null|| !userRepo.existsById(friendship.getRequester().getId())) {
             throw new Exception("Error: Sender Does Not Exist");
         }
@@ -45,27 +49,87 @@ public class FriendshipService {
         } 
 
         friendship.setStatus(FriendshipStatus.PENDING);
-        return friendRepo.save(friendship);
+        Friendship savedFriend = friendRepo.save(friendship);
+
+        AppUser requester = savedFriend.getRequester();
+        UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+
+        AppUser receiver = savedFriend.getReceiver();
+        UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+
+        return new FriendDto(
+            savedFriend.getId(),
+            safeRequester,
+            safeReceiver,
+            savedFriend.getStatus()
+        );
     }
 
-    public Friendship acceptFriendStatus(Long id) throws Exception {
+    public FriendDto acceptFriendStatus(Long id) throws Exception {
         Friendship friendship = friendRepo.findById(id)
             .orElseThrow(() -> new Exception("Not found"));
         
         friendship.setStatus(FriendshipStatus.ACCEPTED);
-        return friendRepo.save(friendship);
+        Friendship savedFriend =  friendRepo.save(friendship);
+
+        AppUser requester = savedFriend.getRequester();
+        UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+
+        AppUser receiver = savedFriend.getReceiver();
+        UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+
+        return new FriendDto(
+            savedFriend.getId(),
+            safeRequester,
+            safeReceiver,
+            savedFriend.getStatus()
+        );
     }
 
-    public Friendship declineFriendStatus(Long id) throws Exception {
+    public FriendDto declineFriendStatus(Long id) throws Exception {
         Friendship friendship = friendRepo.findById(id)
             .orElseThrow(() -> new Exception("Not found"));
         
         friendship.setStatus(FriendshipStatus.REJECTED);
-        return friendRepo.save(friendship);
+        Friendship savedFriend =  friendRepo.save(friendship);
+
+        AppUser requester = savedFriend.getRequester();
+        UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+
+        AppUser receiver = savedFriend.getReceiver();
+        UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+
+        return new FriendDto(
+            savedFriend.getId(),
+            safeRequester,
+            safeReceiver,
+            savedFriend.getStatus()
+        );
     }
 
-    public List<Friendship> getAllFriend(Long id) {
-        return friendRepo.findAcceptedFriendships(id);
+    public List<FriendDto> getAllFriend(Long id) {
+        List<Friendship> rawFriends = friendRepo.findAcceptedFriendships(id);
+
+        List<FriendDto> safeFriends = new ArrayList<>();
+
+        for (Friendship friend : rawFriends) {
+            AppUser requester = friend.getRequester();
+            UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+
+            AppUser receiver = friend.getReceiver();
+            UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+
+            FriendDto dto = new FriendDto(
+                friend.getId(),
+                safeRequester,
+                safeReceiver,
+                friend.getStatus()
+            );
+
+            safeFriends.add(dto);
+        }
+        
+        return safeFriends;
     }
 
     //this service can be use for both pending and accepted relation ship 

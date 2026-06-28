@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.my_backend_java.dto.FriendDto;
 import com.demo.my_backend_java.entity.Friendship;
 import com.demo.my_backend_java.service.FriendshipService;
 
@@ -27,7 +28,7 @@ public class FriendshipController {
     @PostMapping("/request")
     public ResponseEntity<?> requestFriend(@RequestBody Friendship friendship) {
         try {
-            Friendship savedFriendship = friendService.requestFriend(friendship);
+            FriendDto savedFriendship = friendService.requestFriend(friendship);
             return ResponseEntity.ok(savedFriendship); 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -37,7 +38,7 @@ public class FriendshipController {
     @PutMapping("/accept/{id}") 
     public ResponseEntity<?> acceptFriendStatus(@PathVariable Long id) {
         try {
-            Friendship updateFriend = friendService.acceptFriendStatus(id);
+            FriendDto updateFriend = friendService.acceptFriendStatus(id);
             return ResponseEntity.ok(updateFriend);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -47,7 +48,7 @@ public class FriendshipController {
     @PutMapping("/decline/{id}") 
     public ResponseEntity<?> declineFriendStatus(@PathVariable Long id) {
         try {
-            Friendship updateFriend = friendService.declineFriendStatus(id);
+            FriendDto updateFriend = friendService.declineFriendStatus(id);
             return ResponseEntity.ok(updateFriend);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -55,8 +56,8 @@ public class FriendshipController {
     }
 
     @GetMapping("/list/{id}") 
-    public ResponseEntity<List<Friendship>> getAllFriend(@PathVariable Long id) {
-        List<Friendship> acceptedFriend = friendService.getAllFriend(id);
+    public ResponseEntity<List<FriendDto>> getAllFriend(@PathVariable Long id) {
+        List<FriendDto> acceptedFriend = friendService.getAllFriend(id);
 
         return ResponseEntity.ok(acceptedFriend);
     }
