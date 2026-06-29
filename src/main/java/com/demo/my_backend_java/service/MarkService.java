@@ -207,7 +207,7 @@ public class MarkService {
         markRepo.save(mark);
 
         return "Mark Liked";
-    }
+    } 
 
     public List<MarkDto> getAllMark(Long id) {
         List<Mark> rawMarks = markRepo.findAllByAppUserId(id);
