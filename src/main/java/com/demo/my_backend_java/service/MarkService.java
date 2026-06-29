@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.demo.my_backend_java.dto.CommentDto;
 import com.demo.my_backend_java.dto.MarkDto;
 import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.AppUser;
@@ -105,7 +106,7 @@ public class MarkService {
         );
     }
 
-    public Comment addComment(Long markId, Comment cmt) throws Exception {
+    public CommentDto addComment(Long markId, Comment cmt) throws Exception {
         Mark targetMark = markRepo.findById(markId)
             .orElseThrow(() -> new Exception("Not Found"));
 
@@ -117,11 +118,73 @@ public class MarkService {
         targetMark.setCmtCount(targetMark.getCmtCount() + 1);    
 
         markRepo.save(targetMark);
-        return cmtRepo.save(cmt);
+        Comment savedComment = cmtRepo.save(cmt);
+
+        AppUser commenter = savedComment.getUser();
+        UserDto safeCommenter = new UserDto(commenter.getId(), commenter.getUsername());
+
+        Mark commentedMark = savedComment.getMark();
+
+        AppUser markAuthor = commentedMark.getAppUser();
+        UserDto safeMarkAuthor = new UserDto(markAuthor.getId(), markAuthor.getUsername());
+
+        MarkDto safeCommentedMark = new MarkDto(
+            commentedMark.getId(),
+            safeMarkAuthor,
+            commentedMark.getMessage(),
+            commentedMark.getLatitude(),
+            commentedMark.getLongitude(),
+            commentedMark.getView(),
+            commentedMark.getLikeCount(),
+            commentedMark.getCmtCount(),
+            commentedMark.isPrivacy()
+        );
+
+        return new CommentDto(
+            savedComment.getId(),
+            safeCommenter,
+            safeCommentedMark,
+            savedComment.getContent()
+        );
     }
     
-    public List<Comment> getAllComment(Long markId) {
-        return cmtRepo.findByMarkId(markId);
+    public List<CommentDto> getAllComment(Long markId) {
+        List<Comment> rawComments = cmtRepo.findByMarkId(markId);
+
+        List<CommentDto> safeComments = new ArrayList<>();
+
+        for (Comment comment : rawComments) {
+            AppUser commenter = comment.getUser();
+            UserDto safeCommenter = new UserDto(commenter.getId(), commenter.getUsername());
+
+            Mark commentedMark = comment.getMark();
+
+            AppUser markAuthor = commentedMark.getAppUser();
+            UserDto safeMarkAuthor = new UserDto(markAuthor.getId(), markAuthor.getUsername());
+
+            MarkDto safeCommentedMark = new MarkDto(
+                commentedMark.getId(),
+                safeMarkAuthor,
+                commentedMark.getMessage(),
+                commentedMark.getLatitude(),
+                commentedMark.getLongitude(),
+                commentedMark.getView(),
+                commentedMark.getLikeCount(),
+                commentedMark.getCmtCount(),
+                commentedMark.isPrivacy()
+            );
+
+            CommentDto dto = new CommentDto(
+                comment.getId(),
+                safeCommenter,
+                safeCommentedMark,
+                comment.getContent()
+            );
+
+            safeComments.add(dto);
+        }
+
+        return safeComments;
     }
 
     public String likeMark(Long markId, Long userId) throws Exception {

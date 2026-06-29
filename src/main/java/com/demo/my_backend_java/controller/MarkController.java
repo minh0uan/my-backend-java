@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.my_backend_java.dto.CommentDto;
 import com.demo.my_backend_java.dto.MarkDto;
 import com.demo.my_backend_java.entity.Comment;
 import com.demo.my_backend_java.entity.Mark;
@@ -57,7 +58,7 @@ public class MarkController {
     @PostMapping("/{id}/comments")
     public ResponseEntity<?> addComment(@PathVariable("id") Long markId,@RequestBody Comment cmt) {
         try {
-            Comment savedComment = markService.addComment(markId, cmt);
+            CommentDto savedComment = markService.addComment(markId, cmt);
             return ResponseEntity.ok(savedComment);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -65,8 +66,8 @@ public class MarkController {
     }
 
     @GetMapping("/{id}/list-comment")
-    public ResponseEntity<List<Comment>> getAllComment(@PathVariable("id") Long markId) {
-        List<Comment> allCmt = markService.getAllComment(markId);
+    public ResponseEntity<List<CommentDto>> getAllComment(@PathVariable("id") Long markId) {
+        List<CommentDto> allCmt = markService.getAllComment(markId);
         
         return ResponseEntity.ok(allCmt);
     }
