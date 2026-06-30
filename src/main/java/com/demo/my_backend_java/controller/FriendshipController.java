@@ -2,7 +2,6 @@ package com.demo.my_backend_java.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +21,11 @@ import com.demo.my_backend_java.service.FriendshipService;
 @RequestMapping("/api/friendships")
 public class FriendshipController {
 
-    @Autowired
-    private FriendshipService friendService;
+    private final FriendshipService friendService;
+
+    public FriendshipController(FriendshipService friendshipService) {
+        this.friendService = friendshipService;
+    }
 
     @PostMapping("/request")
     public ResponseEntity<?> requestFriend(@RequestBody Friendship friendship) {

@@ -5,11 +5,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import com.demo.my_backend_java.entity.Mark;
 
-@Repository
 public interface MarkRepo extends JpaRepository<Mark, Long>{
 
     boolean existsByLongitude(double longitude);

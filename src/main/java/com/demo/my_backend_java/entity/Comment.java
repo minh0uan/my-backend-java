@@ -22,7 +22,7 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) 
     @OnDelete(action = OnDeleteAction.CASCADE) //delete dependencies 
-    private AppUser user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "mark_id", nullable = false)
@@ -35,11 +35,11 @@ public class Comment {
         return id;
     }
 
-    public AppUser getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(AppUser user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

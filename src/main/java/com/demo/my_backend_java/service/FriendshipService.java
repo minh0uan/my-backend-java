@@ -4,25 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.dto.FriendDto;
 import com.demo.my_backend_java.dto.UserDto;
-import com.demo.my_backend_java.entity.AppUser;
+import com.demo.my_backend_java.entity.User;
 import com.demo.my_backend_java.entity.Friendship;
 import com.demo.my_backend_java.entity.FriendshipStatus;
-import com.demo.my_backend_java.repository.AppUserRepo;
+import com.demo.my_backend_java.repository.UserRepo;
 import com.demo.my_backend_java.repository.FriendshipRepo;
 
 @Service
 public class FriendshipService {
     
-    @Autowired
-    private FriendshipRepo friendRepo;
+    private final FriendshipRepo friendRepo;
 
-    @Autowired
-    private AppUserRepo userRepo;
+    private final UserRepo userRepo;
+
+    public FriendshipService(FriendshipRepo friendshipRepo, UserRepo userRepo) {
+        this.friendRepo = friendshipRepo;
+        this.userRepo = userRepo;
+    }
 
     public FriendDto requestFriend(Friendship friendship) throws Exception {
         if (friendship.getRequester() == null|| !userRepo.existsById(friendship.getRequester().getId())) {
@@ -51,10 +53,10 @@ public class FriendshipService {
         friendship.setStatus(FriendshipStatus.PENDING);
         Friendship savedFriend = friendRepo.save(friendship);
 
-        AppUser requester = savedFriend.getRequester();
+        User requester = savedFriend.getRequester();
         UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
 
-        AppUser receiver = savedFriend.getReceiver();
+        User receiver = savedFriend.getReceiver();
         UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
 
         return new FriendDto(
@@ -72,10 +74,10 @@ public class FriendshipService {
         friendship.setStatus(FriendshipStatus.ACCEPTED);
         Friendship savedFriend =  friendRepo.save(friendship);
 
-        AppUser requester = savedFriend.getRequester();
+        User requester = savedFriend.getRequester();
         UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
 
-        AppUser receiver = savedFriend.getReceiver();
+        User receiver = savedFriend.getReceiver();
         UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
 
         return new FriendDto(
@@ -93,10 +95,10 @@ public class FriendshipService {
         friendship.setStatus(FriendshipStatus.REJECTED);
         Friendship savedFriend =  friendRepo.save(friendship);
 
-        AppUser requester = savedFriend.getRequester();
+        User requester = savedFriend.getRequester();
         UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
 
-        AppUser receiver = savedFriend.getReceiver();
+        User receiver = savedFriend.getReceiver();
         UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
 
         return new FriendDto(
@@ -113,10 +115,10 @@ public class FriendshipService {
         List<FriendDto> safeFriends = new ArrayList<>();
 
         for (Friendship friend : rawFriends) {
-            AppUser requester = friend.getRequester();
+            User requester = friend.getRequester();
             UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
 
-            AppUser receiver = friend.getReceiver();
+            User receiver = friend.getReceiver();
             UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
 
             FriendDto dto = new FriendDto(

@@ -24,12 +24,12 @@ public class Friendship {
     @ManyToOne
     @JoinColumn(name = "requested_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private AppUser requester;
+    private User requester;
 
     @ManyToOne
     @JoinColumn(name = "receiver_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private AppUser receiver;
+    private User receiver;
 
     @Enumerated(EnumType.STRING) 
     private FriendshipStatus status;
@@ -38,19 +38,19 @@ public class Friendship {
         return id;
     }
 
-    public AppUser getRequester() {
+    public User getRequester() {
         return requester;
     }
 
-    public void setRequester(AppUser requester) {
+    public void setRequester(User requester) {
         this.requester = requester;
     }
 
-    public AppUser getReceiver() {
+    public User getReceiver() {
         return receiver;
     }
 
-    public void setReceiver(AppUser receiver) {
+    public void setReceiver(User receiver) {
         this.receiver = receiver;
     }
 

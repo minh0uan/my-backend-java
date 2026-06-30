@@ -3,12 +3,10 @@ package com.demo.my_backend_java.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import com.demo.my_backend_java.entity.AppUser;
+import com.demo.my_backend_java.entity.User;
 
-@Repository
-public interface AppUserRepo extends JpaRepository<AppUser, Long>{
+public interface UserRepo extends JpaRepository<User, Long>{
     //repo for string boot to automatically update, insert, delete, ... 
 
     boolean existsByEmail(String email);
@@ -17,9 +15,9 @@ public interface AppUserRepo extends JpaRepository<AppUser, Long>{
 
     boolean existsByUsername(String username);
 
-    Optional<AppUser> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-    Optional<AppUser> findByPhone(String phone);
+    Optional<User> findByPhone(String phone);
 
-    Optional<AppUser> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 } 

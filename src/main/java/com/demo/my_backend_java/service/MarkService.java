@@ -3,17 +3,16 @@ package com.demo.my_backend_java.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.dto.CommentDto;
 import com.demo.my_backend_java.dto.MarkDto;
 import com.demo.my_backend_java.dto.UserDto;
-import com.demo.my_backend_java.entity.AppUser;
+import com.demo.my_backend_java.entity.User;
 import com.demo.my_backend_java.entity.Comment;
 import com.demo.my_backend_java.entity.Like;
 import com.demo.my_backend_java.entity.Mark;
-import com.demo.my_backend_java.repository.AppUserRepo;
+import com.demo.my_backend_java.repository.UserRepo;
 import com.demo.my_backend_java.repository.CommentRepo;
 import com.demo.my_backend_java.repository.LikeRepo;
 import com.demo.my_backend_java.repository.MarkRepo;
@@ -21,17 +20,20 @@ import com.demo.my_backend_java.repository.MarkRepo;
 @Service
 public class MarkService {
     
-    @Autowired
-    private MarkRepo markRepo;
+    private final MarkRepo markRepo;
 
-    @Autowired 
-    private AppUserRepo userRepo;
+    private final UserRepo userRepo;
 
-    @Autowired
-    private CommentRepo cmtRepo;
+    private final CommentRepo cmtRepo;
+    
+    private final LikeRepo likeRepo;
 
-    @Autowired
-    private LikeRepo likeRepo;
+    public MarkService (MarkRepo markRepo, UserRepo userRepo, CommentRepo cmtRepo, LikeRepo likeRepo) {
+        this.markRepo = markRepo;
+        this.userRepo = userRepo;
+        this.cmtRepo = cmtRepo;
+        this.likeRepo = likeRepo;
+    }
 
     public MarkDto dropMark(Mark mark) throws Exception {
         if (mark.getAppUser() == null || !userRepo.existsById(mark.getAppUser().getId())) { 
@@ -40,7 +42,7 @@ public class MarkService {
 
         Mark savedMark = markRepo.save(mark);
 
-        AppUser author = savedMark.getAppUser();
+        User author = savedMark.getAppUser();
         UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
 
         return new MarkDto(
@@ -62,7 +64,7 @@ public class MarkService {
         List<MarkDto> safeMarks = new ArrayList<>();
 
         for (Mark mark : rawMarks) {
-            AppUser author = mark.getAppUser();
+            User author = mark.getAppUser();
             UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
 
             MarkDto dto = new MarkDto(
@@ -90,7 +92,7 @@ public class MarkService {
         mark.setView(mark.getView() + 1);
         Mark savedMark =  markRepo.save(mark);
 
-        AppUser author = savedMark.getAppUser();
+        User author = savedMark.getAppUser();
         UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
 
         return new MarkDto(
@@ -120,12 +122,12 @@ public class MarkService {
         markRepo.save(targetMark);
         Comment savedComment = cmtRepo.save(cmt);
 
-        AppUser commenter = savedComment.getUser();
+        User commenter = savedComment.getUser();
         UserDto safeCommenter = new UserDto(commenter.getId(), commenter.getUsername());
 
         Mark commentedMark = savedComment.getMark();
 
-        AppUser markAuthor = commentedMark.getAppUser();
+        User markAuthor = commentedMark.getAppUser();
         UserDto safeMarkAuthor = new UserDto(markAuthor.getId(), markAuthor.getUsername());
 
         MarkDto safeCommentedMark = new MarkDto(
@@ -154,12 +156,12 @@ public class MarkService {
         List<CommentDto> safeComments = new ArrayList<>();
 
         for (Comment comment : rawComments) {
-            AppUser commenter = comment.getUser();
+            User commenter = comment.getUser();
             UserDto safeCommenter = new UserDto(commenter.getId(), commenter.getUsername());
 
             Mark commentedMark = comment.getMark();
 
-            AppUser markAuthor = commentedMark.getAppUser();
+            User markAuthor = commentedMark.getAppUser();
             UserDto safeMarkAuthor = new UserDto(markAuthor.getId(), markAuthor.getUsername());
 
             MarkDto safeCommentedMark = new MarkDto(
@@ -191,7 +193,7 @@ public class MarkService {
         Mark mark = markRepo.findById(markId)
             .orElseThrow(() -> new Exception("Mark Not Found"));
 
-        AppUser user = userRepo.findById(userId)
+        User user = userRepo.findById(userId)
             .orElseThrow(() -> new Exception("User Not Found"));
 
         if (likeRepo.existsByMarkIdAndUserId(markId, userId)) {
@@ -215,7 +217,7 @@ public class MarkService {
         List<MarkDto> safeMarks = new ArrayList<>();
 
         for (Mark mark : rawMarks) {
-            AppUser author = mark.getAppUser();
+            User author = mark.getAppUser();
             UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
 
             MarkDto dto = new MarkDto(

@@ -24,7 +24,7 @@ public class Mark {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private AppUser appUser;//foreign key 
+    private User appUser;//foreign key 
     
     private String message;
 
@@ -46,11 +46,11 @@ public class Mark {
         return id;
     }
 
-    public AppUser getAppUser() {
+    public User getAppUser() {
         return appUser;
     }
 
-    public void setAppUser(AppUser appUser) {
+    public void setAppUser(User appUser) {
         this.appUser = appUser;
     }
 

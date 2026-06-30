@@ -2,20 +2,23 @@ package com.demo.my_backend_java.service;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.dto.UserDto;
-import com.demo.my_backend_java.entity.AppUser;
-import com.demo.my_backend_java.repository.AppUserRepo;
+import com.demo.my_backend_java.entity.User;
+import com.demo.my_backend_java.repository.UserRepo;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private AppUserRepo userRepo;
+    
+    private final UserRepo userRepo;
 
-    public UserDto registerUser(AppUser user) throws Exception {
+    public UserService(UserRepo userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    public UserDto registerUser(User user) throws Exception {
         
         if (userRepo.existsByEmail(user.getEmail())) {
             throw new Exception("Error: Email In Used");
@@ -27,22 +30,22 @@ public class UserService {
             throw new Exception("Error: User Name In Used");
         }
 
-        AppUser savedUSer = userRepo.save(user);
+        User savedUSer = userRepo.save(user);
 
         return new UserDto(savedUSer.getId(), savedUSer.getUsername());
     }
 
     public UserDto getUserProfile(Long id) throws Exception {
-        AppUser user =  userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
+        User user =  userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
 
         return new UserDto(user.getId(), user.getUsername());
     }
 
-    public String loginUser(AppUser loginRequest) throws Exception {
+    public String loginUser(User loginRequest) throws Exception {
         
-        Optional<AppUser> dataUserEmail = userRepo.findByEmail(loginRequest.getEmail());
-        Optional<AppUser> dataUserPhone = userRepo.findByPhone(loginRequest.getPhone());
-        Optional<AppUser> dataUsername = userRepo.findByUsername(loginRequest.getUsername());
+        Optional<User> dataUserEmail = userRepo.findByEmail(loginRequest.getEmail());
+        Optional<User> dataUserPhone = userRepo.findByPhone(loginRequest.getPhone());
+        Optional<User> dataUsername = userRepo.findByUsername(loginRequest.getUsername());
 
         if (dataUserEmail.isPresent() && dataUserEmail.get().getPassword().equals(loginRequest.getPassword())) {
             return "Login Successful By Email";

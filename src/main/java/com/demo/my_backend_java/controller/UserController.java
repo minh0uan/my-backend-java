@@ -1,6 +1,5 @@
 package com.demo.my_backend_java.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,18 +10,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.my_backend_java.dto.UserDto;
-import com.demo.my_backend_java.entity.AppUser;
+import com.demo.my_backend_java.entity.User;
 import com.demo.my_backend_java.service.UserService;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
     
-    @Autowired
-    private UserService userService; // Injecting Service instead of Repo
+    private final UserService userService; // Injecting Service instead of Repo
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody AppUser user) {
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
         try {
             UserDto savedUser = userService.registerUser(user);
             return ResponseEntity.ok(savedUser);
@@ -42,7 +44,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody AppUser loginRequest) {
+    public ResponseEntity<String> loginUser(@RequestBody User loginRequest) {
         try {
             String successMessage = userService.loginUser(loginRequest);
             return ResponseEntity.ok(successMessage);
