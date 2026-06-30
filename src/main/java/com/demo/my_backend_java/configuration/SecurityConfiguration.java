@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -34,21 +36,24 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails admin = User.builder()
             .username("admin")
-            .password("{noop}admin-pass")
+            .password(passwordEncoder.encode("admin-pass"))
             .roles("ADMIN", "USER")
             .build();
 
         UserDetails user = User.builder()
             .username("user")
-            .password("{noop}user-pass")
+            .password(passwordEncoder.encode("user-pass"))
             .roles("USER")
             .build();
 
         return new InMemoryUserDetailsManager(admin, user);
     }
 
-
+    @Bean 
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
