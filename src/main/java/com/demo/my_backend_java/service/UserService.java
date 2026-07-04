@@ -2,6 +2,7 @@ package com.demo.my_backend_java.service;
 
 import java.util.Optional;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.dto.UserDto;
@@ -18,6 +19,8 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
     public UserDto registerUser(User user) throws Exception {
         
         if (userRepo.existsByEmail(user.getEmail())) {
@@ -29,6 +32,10 @@ public class UserService {
         if (userRepo.existsByUsername(user.getUsername())) {
             throw new Exception("Error: User Name In Used");
         }
+
+        //hash the password 12 times 
+        //before saving it to the table
+        user.setPassword(encoder.encode(user.getPassword()));
 
         User savedUSer = userRepo.save(user);
 

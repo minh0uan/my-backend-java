@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -31,8 +30,13 @@ public class SecurityConfiguration {
         );
 
         httpSecurity.authorizeHttpRequests(request -> request
+            //public
             .requestMatchers("/api/user/register", "/api/user/login").permitAll()
+
+            //admin 
             .requestMatchers("/api/user/delete/**", "/api/mark/delete/**", "/api/friendships/delete-friend/**").hasRole("ADMIN")
+
+            //user
             .anyRequest().authenticated()
         );
 
@@ -43,12 +47,7 @@ public class SecurityConfiguration {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         return provider;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
