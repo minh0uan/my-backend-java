@@ -3,6 +3,7 @@ package com.demo.my_backend_java.service;
 import java.util.Optional;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.dto.UserDto;
@@ -14,9 +15,11 @@ public class UserService {
 
     
     private final UserRepo userRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepo userRepo) {
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
@@ -50,21 +53,11 @@ public class UserService {
 
     public String loginUser(User loginRequest) throws Exception {
         
-        Optional<User> dataUserEmail = userRepo.findByEmail(loginRequest.getEmail());
-        Optional<User> dataUserPhone = userRepo.findByPhone(loginRequest.getPhone());
-        Optional<User> dataUsername = userRepo.findByUsername(loginRequest.getUsername());
+        Optional<User> dataUser = userRepo.findByUsernameOrEmailOrPhone(loginRequest.getUsername(), loginRequest.getEmail(), loginRequest.getPhone());
 
-        if (dataUserEmail.isPresent() && dataUserEmail.get().getPassword().equals(loginRequest.getPassword())) {
-            return "Login Successful By Email";
+        if (dataUser.isPresent() && passwordEncoder.matches(loginRequest.getPassword(), dataUser.get().getPassword())) {
+            return "Login Successful";
         }
-        
-        if (dataUserPhone.isPresent() && dataUserPhone.get().getPassword().equals(loginRequest.getPassword())) {
-            return "Login Successful By Phone Number";
-        }
-        
-        if (dataUsername.isPresent() && dataUsername.get().getPassword().equals(loginRequest.getPassword())) {
-            return "Login Successful By Username";
-        } 
 
         throw new Exception("Error: Invalid credentials");
     }
