@@ -1,6 +1,7 @@
 package com.demo.my_backend_java.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.my_backend_java.dto.LoginRequest;
 import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.User;
 import com.demo.my_backend_java.service.UserService;
@@ -44,12 +46,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody User loginRequest) {
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
         try {
             String successMessage = userService.loginUser(loginRequest);
             return ResponseEntity.ok(successMessage);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(401).body("Error: Invalid Credentials");
         } catch (Exception e) {
-            return ResponseEntity.status(401).body(e.getMessage());
+            return ResponseEntity.status(500).body("Error: Something Went Wrong");
         }
     }   
 

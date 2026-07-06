@@ -1,11 +1,12 @@
 package com.demo.my_backend_java.service;
 
-import java.util.Optional;
-
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.demo.my_backend_java.dto.LoginRequest;
 import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.User;
 import com.demo.my_backend_java.repository.UserRepo;
@@ -13,13 +14,12 @@ import com.demo.my_backend_java.repository.UserRepo;
 @Service
 public class UserService {
 
-    
     private final UserRepo userRepo;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepo userRepo, AuthenticationManager authenticationManager) {
         this.userRepo = userRepo;
-        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
@@ -51,16 +51,19 @@ public class UserService {
         return new UserDto(user.getId(), user.getUsername());
     }
 
-    public String loginUser(User loginRequest) throws Exception {
+    public String loginUser(LoginRequest loginRequest) throws Exception {
         
-        Optional<User> dataUser = userRepo.findByUsernameOrEmailOrPhone(loginRequest.getUsername(), loginRequest.getEmail(), loginRequest.getPhone());
+        Authentication auth = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(loginRequest.loginId(), loginRequest.password())
+        );
 
-        if (dataUser.isPresent() && passwordEncoder.matches(loginRequest.getPassword(), dataUser.get().getPassword())) {
-            return "Login Successful";
+        if (auth.isAuthenticated()) {
+            return "Login Success";
         }
-
-        throw new Exception("Error: Invalid credentials");
+        
+        return "Invalid Credentials";
     }
+
 
     public void deleteUser(Long id) throws Exception {
 
