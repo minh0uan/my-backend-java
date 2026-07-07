@@ -16,10 +16,12 @@ public class UserService {
 
     private final UserRepo userRepo;
     private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
 
-    public UserService(UserRepo userRepo, AuthenticationManager authenticationManager) {
+    public UserService(UserRepo userRepo, AuthenticationManager authenticationManager, JWTService jwtService) {
         this.userRepo = userRepo;
         this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
@@ -58,7 +60,7 @@ public class UserService {
         );
 
         if (auth.isAuthenticated()) {
-            return "Login Success";
+            return jwtService.generateToken(loginRequest.loginId());
         }
         
         return "Invalid Credentials";
