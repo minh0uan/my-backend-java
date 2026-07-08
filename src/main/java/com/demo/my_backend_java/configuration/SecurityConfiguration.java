@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -19,8 +20,12 @@ public class SecurityConfiguration {
 
     private final UserDetailsService userDetailsService;
 
-    public SecurityConfiguration(UserDetailsService userDetailsService) {
+    private final JWTFilter jwtFilter;
+
+    public SecurityConfiguration(UserDetailsService userDetailsService, JWTFilter jwtFilter) {
         this.userDetailsService = userDetailsService;
+        this.jwtFilter = jwtFilter;
+        
     }
 
     @Bean
@@ -41,6 +46,8 @@ public class SecurityConfiguration {
             //user
             .anyRequest().authenticated()
         );
+
+        httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
