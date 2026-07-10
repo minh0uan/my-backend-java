@@ -31,7 +31,7 @@ public class UserService {
         if (user.getEmail() == null && user.getPhone() == null) {
             throw new Exception("Error: Provide An Email Or Phone Number");
         }
-        
+
         if (user.getEmail() != null && userRepo.existsByEmail(user.getEmail())) {
             throw new Exception("Error: Email In Used");
         }
@@ -40,8 +40,16 @@ public class UserService {
             throw new Exception("Error: Phone Number In Used");
         }
 
+        if (user.getUsername() == null) {
+            throw new Exception("Error: Enter A User Name");
+        }
+
         if (user.getUsername() != null && userRepo.existsByUsername(user.getUsername())) {
             throw new Exception("Error: User Name In Used");
+        }
+
+        if (user.getPassword() == null){
+            throw new Exception("Error: Provided An Password");
         }
 
         //hash the password 12 times 
