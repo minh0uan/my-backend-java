@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.dto.LoginRequest;
+import com.demo.my_backend_java.dto.RegisterRequest;
 import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.User;
 import com.demo.my_backend_java.repository.UserRepo;
@@ -26,8 +27,12 @@ public class UserService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public UserDto registerUser(String username, String contact, String password) throws Exception {
+    public UserDto registerUser(RegisterRequest registerRequest) throws Exception {
         User user = new User();
+
+        String username = registerRequest.username();
+        String contact = registerRequest.contact();
+        String password = registerRequest.password();
 
         if (username == null || username.trim().isEmpty()) {
             throw new Exception("Error: Enter A User Name");
