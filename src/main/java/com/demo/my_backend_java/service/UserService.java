@@ -26,45 +26,49 @@ public class UserService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public UserDto registerUser(User user) throws Exception {
+    public UserDto registerUser(String username, String contact, String password) throws Exception {
+        User user = new User();
 
-        if (user.getEmail() == null && user.getPhone() == null) {
-            throw new Exception("Error: Provide An Email Or Phone Number");
-        }
-
-        if (user.getEmail() != null && userRepo.existsByEmail(user.getEmail())) {
-            throw new Exception("Error: Email In Used");
-        }
-
-        if (user.getPhone() != null && userRepo.existsByPhone(user.getPhone())) {
-            throw new Exception("Error: Phone Number In Used");
-        }
-
-        if (user.getUsername() == null) {
+        if (username == null || username.trim().isEmpty()) {
             throw new Exception("Error: Enter A User Name");
         }
 
-        if (user.getUsername() != null && userRepo.existsByUsername(user.getUsername())) {
+        if ( userRepo.existsByUsername(username)) {
             throw new Exception("Error: User Name In Used");
         }
 
-        if (user.getPassword() == null){
-            throw new Exception("Error: Provided An Password");
+        user.setUsername(username);
+
+        if (contact == null || contact.trim().isEmpty()) {
+            throw new Exception("Error: Provide An Email Or Phone Number");
+        }
+
+        contact = contact.trim();
+        if (contact.contains("@")) {
+            if (userRepo.existsByEmail(contact)) {
+                throw new Exception("Error: Email In Used");
+            }
+            user.setEmail(contact);
+        } else if (contact.matches("^[0-9\\+\\-\\s]+$")) {
+            if (userRepo.existsByPhone(contact)) {
+                throw new Exception("Error: Phone Number In Used");
+            }
+            user.setPhone(contact);
+        } else {
+            throw new Exception("Error: Invalid, Please Enter A Valid Email Or Phone Number");
+        }
+
+        if (password == null || password.trim().isEmpty()) {
+            throw new Exception("Error: Provide A Secured Password");
         }
 
         //hash the password 12 times 
         //before saving it to the table
-        user.setPassword(encoder.encode(user.getPassword()));
+        user.setPassword(encoder.encode(password));
 
         User savedUSer = userRepo.save(user);
 
         return new UserDto(savedUSer.getId(), savedUSer.getUsername());
-    }
-
-    public UserDto getUserProfile(Long id) throws Exception {
-        User user =  userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
-
-        return new UserDto(user.getId(), user.getUsername());
     }
 
     public String loginUser(LoginRequest loginRequest) throws Exception {
@@ -79,6 +83,13 @@ public class UserService {
         
         return "Invalid Credentials";
     }
+
+    public UserDto getUserProfile(Long id) throws Exception {
+        User user =  userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
+
+        return new UserDto(user.getId(), user.getUsername());
+    }
+
 
 
     public void deleteUser(Long id) throws Exception {

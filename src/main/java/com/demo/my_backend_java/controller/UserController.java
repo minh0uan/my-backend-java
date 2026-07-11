@@ -26,22 +26,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
+    public ResponseEntity<?> registerUser(@RequestBody String username, @RequestBody String contact, @RequestBody String password) {
         try {
-            UserDto savedUser = userService.registerUser(user);
+            UserDto savedUser = userService.registerUser(username, contact, password);
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
-        try {
-            UserDto user = userService.getUserProfile(id);
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
         }
     }
 
@@ -56,6 +46,16 @@ public class UserController {
             return ResponseEntity.status(500).body("Error: Something Went Wrong");
         }
     }   
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
+        try {
+            UserDto user = userService.getUserProfile(id);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) throws Exception {
