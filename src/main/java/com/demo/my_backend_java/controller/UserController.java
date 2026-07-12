@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.my_backend_java.dto.LoginRequest;
 import com.demo.my_backend_java.dto.RegisterRequest;
+import com.demo.my_backend_java.dto.TokenResponse;
 import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.service.UserService;
 
@@ -36,9 +37,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         try {
-            String successMessage = userService.loginUser(loginRequest);
+            TokenResponse successMessage = userService.loginUser(loginRequest);
             return ResponseEntity.ok(successMessage);
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Error: Invalid Credentials");

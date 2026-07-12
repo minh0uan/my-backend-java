@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.dto.LoginRequest;
 import com.demo.my_backend_java.dto.RegisterRequest;
+import com.demo.my_backend_java.dto.TokenResponse;
 import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.User;
 import com.demo.my_backend_java.repository.UserRepo;
@@ -76,17 +77,15 @@ public class UserService {
         return new UserDto(savedUSer.getId(), savedUSer.getUsername());
     }
 
-    public String loginUser(LoginRequest loginRequest) throws Exception {
+    public TokenResponse loginUser(LoginRequest loginRequest) throws Exception {
         
-        Authentication auth = authenticationManager.authenticate(
+        authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginRequest.loginId(), loginRequest.password())
         );
 
-        if (auth.isAuthenticated()) {
-            return jwtService.generateToken(loginRequest.loginId());
-        }
+        String token = jwtService.generateToken(loginRequest.loginId());
         
-        return "Invalid Credentials";
+        return new TokenResponse(token);
     }
 
     public UserDto getUserProfile(Long id) throws Exception {
