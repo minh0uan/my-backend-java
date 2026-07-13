@@ -2,7 +2,6 @@ package com.demo.my_backend_java.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -90,6 +89,13 @@ public class UserService {
 
     public UserDto getUserProfile(Long id) throws Exception {
         User user =  userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
+
+        return new UserDto(user.getId(), user.getUsername());
+    }
+
+    public UserDto getCurrentUser(String username) throws Exception{    
+        User user = userRepo.findByUsername(username)
+            .orElseThrow(() -> new Exception("User not found"));
 
         return new UserDto(user.getId(), user.getUsername());
     }
