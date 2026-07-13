@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
     private final UserDetailsService userDetailsService;
@@ -41,7 +43,7 @@ public class SecurityConfiguration {
             .requestMatchers("/api/user/register", "/api/user/login").permitAll()
 
             //admin 
-            .requestMatchers("/api/user/delete/**", "/api/mark/delete/**", "/api/friendships/delete-friend/**").hasRole("ADMIN")
+            .requestMatchers("/api/user/{id}").hasRole("ADMIN")
 
             //user
             .anyRequest().authenticated()

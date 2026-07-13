@@ -4,6 +4,7 @@ import java.security.Principal;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +52,7 @@ public class UserController {
         }
     }   
 
+    //admin only
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
         try {
@@ -71,10 +73,11 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) throws Exception {
+    @DeleteMapping("/delete/{username}")
+    @PreAuthorize("#username == authentication.name or hasRole('ADMIN')") //allow both user (the owner of the account) and admin 
+    public ResponseEntity<String> deleteUser(@PathVariable String username) throws Exception {
         try {
-            userService.deleteUser(id);
+            userService.deleteUser(username);
             return ResponseEntity.ok("Account Delete Sucessful");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());

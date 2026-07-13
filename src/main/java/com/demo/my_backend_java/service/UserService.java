@@ -86,7 +86,7 @@ public class UserService {
         
         return new TokenResponse(token);
     }
-
+ 
     public UserDto getUserProfile(Long id) throws Exception {
         User user =  userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
 
@@ -100,12 +100,12 @@ public class UserService {
         return new UserDto(user.getId(), user.getUsername());
     }
 
-    public void deleteUser(Long id) throws Exception {
+    public void deleteUser(String username) throws Exception {
 
-        if (!userRepo.existsById(id)) {
+        if (!userRepo.existsByUsername(username)) {
             throw new RuntimeException("User Not Found");
         }
         
-        userRepo.deleteById(id);
+        userRepo.deleteByUsername(username);    
     }
 }

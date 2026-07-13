@@ -3,6 +3,7 @@ package com.demo.my_backend_java.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.demo.my_backend_java.entity.User;
 
@@ -18,4 +19,7 @@ public interface UserRepo extends JpaRepository<User, Long>{
     Optional<User> findByUsername(String username);
 
     Optional<User> findByUsernameOrEmailOrPhone(String username, String email, String phone);
+
+    @Transactional
+    void deleteByUsername(String username);
 } 
