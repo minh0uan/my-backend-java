@@ -2,6 +2,7 @@ package com.demo.my_backend_java.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -78,11 +79,16 @@ public class UserService {
 
     public TokenResponse loginUser(LoginRequest loginRequest) throws Exception {
         
-        authenticationManager.authenticate(
+        var authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginRequest.loginId(), loginRequest.password())
         );
 
-        String token = jwtService.generateToken(loginRequest.loginId());
+        //pull out the loginId and check inside of UserDetails 
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        String username = userDetails.getUsername();
+
+        String token = jwtService.generateToken(username);
         
         return new TokenResponse(token);
     }
