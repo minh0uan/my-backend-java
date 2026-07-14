@@ -43,7 +43,8 @@ public class SecurityConfiguration {
             .requestMatchers("/api/user/register", "/api/user/login").permitAll()
 
             //admin 
-            .requestMatchers("/api/user/{id}").hasRole("ADMIN")
+            //id:\\d+ this is the generic way to say, id only accept number
+            .requestMatchers("/api/user/{id:\\d+}").hasRole("ADMIN")
 
             //user
             .anyRequest().authenticated()
