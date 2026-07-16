@@ -1,5 +1,6 @@
 package com.demo.my_backend_java.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,10 @@ public class MarkController {
         this.markService = markService;
     }
 
-    @PostMapping("/drop")
-    public ResponseEntity<?> dropMark(@RequestBody Mark mark)  {
+    @PostMapping
+    public ResponseEntity<?> createMark(@RequestBody Mark mark)  {
         try {
-            MarkDto savedMark = markService.dropMark(mark);
+            MarkDto savedMark = markService.createMark(mark);
             return ResponseEntity.ok(savedMark);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -83,10 +84,9 @@ public class MarkController {
         }
     }
 
-    
-    @GetMapping("/all-marks/{id}") 
-    public ResponseEntity<List<MarkDto>> getAllMark(@PathVariable Long id) {
-        List<MarkDto> marks = markService.getAllMark(id);
+    @GetMapping("/{username}")
+    public ResponseEntity<List<MarkDto>> getMarks(Principal principal,@PathVariable("username") String targetUser) {
+        List<MarkDto> marks = markService.getMarks(principal.getName(), targetUser);
         return ResponseEntity.ok(marks);
     }
 

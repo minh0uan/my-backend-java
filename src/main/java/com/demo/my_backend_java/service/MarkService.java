@@ -14,6 +14,7 @@ import com.demo.my_backend_java.entity.Like;
 import com.demo.my_backend_java.entity.Mark;
 import com.demo.my_backend_java.repository.UserRepo;
 import com.demo.my_backend_java.repository.CommentRepo;
+import com.demo.my_backend_java.repository.FriendshipRepo;
 import com.demo.my_backend_java.repository.LikeRepo;
 import com.demo.my_backend_java.repository.MarkRepo;
 
@@ -28,14 +29,17 @@ public class MarkService {
     
     private final LikeRepo likeRepo;
 
-    public MarkService (MarkRepo markRepo, UserRepo userRepo, CommentRepo cmtRepo, LikeRepo likeRepo) {
+    private final FriendshipRepo friendshipRepo;
+
+    public MarkService (MarkRepo markRepo, UserRepo userRepo, CommentRepo cmtRepo, LikeRepo likeRepo, FriendshipRepo friendshipRepo) {
         this.markRepo = markRepo;
         this.userRepo = userRepo;
         this.cmtRepo = cmtRepo;
         this.likeRepo = likeRepo;
+        this.friendshipRepo = friendshipRepo;
     }
 
-    public MarkDto dropMark(Mark mark) throws Exception {
+    public MarkDto createMark(Mark mark) throws Exception {
         if (mark.getAppUser() == null || !userRepo.existsById(mark.getAppUser().getId())) { 
             throw new Exception("User Does Not Exist");
         }
@@ -211,12 +215,33 @@ public class MarkService {
         return "Mark Liked";
     } 
 
-    public List<MarkDto> getAllMark(Long id) {
-        List<Mark> rawMarks = markRepo.findAllByAppUserId(id);
+    //was getAllMarks
+    //refactor from using id to username
+    //input the current user username using the app
+    // and username of the person they want to see the marks
+    public List<MarkDto> getMarks(String currentUser, String targetUser) {
+        List<Mark> rawMarks;
+
+        //this check if the target is the current user and fetch all of their marks for them
+        if (targetUser.equals(currentUser)) {
+            rawMarks = markRepo.findAllByAppUserUsername(currentUser);
+        } else {
+            boolean isAcceptedFriend = friendshipRepo.isAcceptedFriend(currentUser, targetUser);
+
+            //check if target and current user are friend with each other
+            if (isAcceptedFriend) {
+                rawMarks = markRepo.findAllByAppUserUsername(targetUser);
+            } else {
+                //not friend (pending, rejected)
+                //fetch only public marks 
+                rawMarks = markRepo.findAllByAppUserUsernameAndPrivacyFalse(targetUser);
+            }
+        }
 
         List<MarkDto> safeMarks = new ArrayList<>();
 
         for (Mark mark : rawMarks) {
+            
             User author = mark.getAppUser();
             UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
 
