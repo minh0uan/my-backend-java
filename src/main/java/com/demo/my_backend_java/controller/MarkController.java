@@ -51,6 +51,18 @@ public class MarkController {
         return ResponseEntity.ok(nearby);
     }
 
+    @GetMapping("/user/{username}")
+    public ResponseEntity<List<MarkDto>> getMarks(Principal principal,@PathVariable("username") String targetUser) {
+        List<MarkDto> marks = markService.getMarks(principal.getName(), targetUser);
+        return ResponseEntity.ok(marks);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MarkDto> getMarkById(@PathVariable("id") Long markId) {
+        MarkDto mark = markService.getMarkById(markId);
+        return ResponseEntity.ok(mark);
+    }
+
     @PostMapping("/{id}/view") 
     public ResponseEntity<?> addView(@PathVariable Long id) {
         try {
@@ -71,9 +83,9 @@ public class MarkController {
         }
     }
 
-    @GetMapping("/{id}/list-comment")
-    public ResponseEntity<List<CommentDto>> getAllComment(@PathVariable("id") Long markId) {
-        List<CommentDto> allCmt = markService.getAllComment(markId);
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentDto>> getComments(@PathVariable("id") Long markId) {
+        List<CommentDto> allCmt = markService.getComments(markId);
         
         return ResponseEntity.ok(allCmt);
     }
@@ -87,13 +99,7 @@ public class MarkController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-    @GetMapping("/{username}")
-    public ResponseEntity<List<MarkDto>> getMarks(Principal principal,@PathVariable("username") String targetUser) {
-        List<MarkDto> marks = markService.getMarks(principal.getName(), targetUser);
-        return ResponseEntity.ok(marks);
-    }
-
+    
     @DeleteMapping("/delete/like/{id}")
     public ResponseEntity<String> deleteLike(@PathVariable Long id) throws Exception {
         try {
@@ -118,7 +124,7 @@ public class MarkController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteMark(@PathVariable Long id) throws Exception {
         try {
             markService.deleteMark(id);

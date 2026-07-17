@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.demo.my_backend_java.dto.CommentDto;
 import com.demo.my_backend_java.dto.MarkDto;
@@ -113,6 +114,9 @@ public class MarkService {
         );
     }
 
+    //transaction because saving on 2 database at once
+    //if one failed the other one will rollback too
+    @Transactional
     public CommentDto addComment(Long markId, Comment cmt) throws Exception {
         Mark targetMark = markRepo.findById(markId)
             .orElseThrow(() -> new Exception("Not Found"));
@@ -121,19 +125,27 @@ public class MarkService {
             throw new Exception("User Does Not Exist");
         }
 
+        User markOwner = targetMark.getAppUser();
+        User rawCommenter = cmt.getUser();
+
+        //check privacy and allow user to comment on their own mark (edge case)
+        if (targetMark.isPrivacy() && !markOwner.getUsername().equals(rawCommenter.getUsername())) {
+            if (!friendshipRepo.isAcceptedFriend(markOwner.getUsername(), rawCommenter.getUsername())) {
+               throw new RuntimeException("Error: Cant Comment On A Private Mark");
+            } 
+        }
+
         cmt.setMark(targetMark);
         targetMark.setCmtCount(targetMark.getCmtCount() + 1);    
 
         markRepo.save(targetMark);
         Comment savedComment = cmtRepo.save(cmt);
 
-        User commenter = savedComment.getUser();
-        UserDto safeCommenter = new UserDto(commenter.getId(), commenter.getUsername());
+        UserDto safeCommenter = new UserDto(rawCommenter.getId(), rawCommenter.getUsername());
+
+        UserDto safeMarkAuthor = new UserDto(markOwner.getId(), markOwner.getUsername());
 
         Mark commentedMark = savedComment.getMark();
-
-        User markAuthor = commentedMark.getAppUser();
-        UserDto safeMarkAuthor = new UserDto(markAuthor.getId(), markAuthor.getUsername());
 
         MarkDto safeCommentedMark = new MarkDto(
             commentedMark.getId(),
@@ -155,7 +167,7 @@ public class MarkService {
         );
     }
     
-    public List<CommentDto> getAllComment(Long markId) {
+    public List<CommentDto> getComments(Long markId) {
         List<Comment> rawComments = cmtRepo.findByMarkId(markId);
 
         List<CommentDto> safeComments = new ArrayList<>();
@@ -194,20 +206,29 @@ public class MarkService {
         return safeComments;
     }
 
-    public String likeMark(Long markId, Long userId) throws Exception {
+    @Transactional
+    public String likeMark(Long markId, Long userId){
         Mark mark = markRepo.findById(markId)
-            .orElseThrow(() -> new Exception("Mark Not Found"));
+            .orElseThrow(() -> new RuntimeException("Mark Not Found"));
 
-        User user = userRepo.findById(userId)
-            .orElseThrow(() -> new Exception("User Not Found"));
+        User liker = userRepo.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        User markOwner = mark.getAppUser();
+        
+        if (mark.isPrivacy() && !markOwner.getUsername().equals(liker.getUsername())) {
+            if (!friendshipRepo.isAcceptedFriend(markOwner.getUsername(), liker.getUsername())) {
+               throw new RuntimeException("Error: Cant Like A Private Mark");
+            } 
+        }
 
         if (likeRepo.existsByMarkIdAndUserId(markId, userId)) {
-            throw new Exception("User Already Like This Mark");
+            throw new RuntimeException("User Already Like This Mark");
         }
 
         Like newLike = new Like();
         newLike.setMark(mark);
-        newLike.setUser(user);
+        newLike.setUser(liker);
         likeRepo.save(newLike);
 
         mark.setLikeCount(mark.getLikeCount() + 1);
@@ -227,10 +248,8 @@ public class MarkService {
         if (targetUser.equals(currentUser)) {
             rawMarks = markRepo.findAllByAppUserUsername(currentUser);
         } else {
-            boolean isAcceptedFriend = friendshipRepo.isAcceptedFriend(currentUser, targetUser);
-
             //check if target and current user are friend with each other
-            if (isAcceptedFriend) {
+            if (friendshipRepo.isAcceptedFriend(currentUser, targetUser)) {
                 rawMarks = markRepo.findAllByAppUserUsername(targetUser);
             } else {
                 //not friend (pending, rejected)
@@ -262,6 +281,27 @@ public class MarkService {
         }
 
         return safeMarks;
+    }
+
+    public MarkDto getMarkById(Long markId){
+        Mark mark = markRepo.findById(markId)
+            .orElseThrow(() -> new RuntimeException("Error: Mark Not Found"));
+
+
+        User author = mark.getAppUser();
+        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+
+        return new MarkDto(
+            mark.getId(),
+            safeAuthor,
+            mark.getMessage(),
+            mark.getLatitude(),
+            mark.getLongitude(),
+            mark.getView(),
+            mark.getLikeCount(),
+            mark.getCmtCount(),
+            mark.isPrivacy()
+        );
     }
 
     public void deleteLike(Long id) throws Exception {
