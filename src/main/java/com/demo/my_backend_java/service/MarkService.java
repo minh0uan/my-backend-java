@@ -39,10 +39,11 @@ public class MarkService {
         this.friendshipRepo = friendshipRepo;
     }
 
-    public MarkDto createMark(Mark mark) throws Exception {
-        if (mark.getAppUser() == null || !userRepo.existsById(mark.getAppUser().getId())) { 
-            throw new Exception("User Does Not Exist");
-        }
+    public MarkDto createMark(Mark mark, String username) throws Exception {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new Exception("User Does Not Exist"));
+
+        mark.setAppUser(user);
 
         Mark savedMark = markRepo.save(mark);
 

@@ -29,10 +29,14 @@ public class MarkController {
         this.markService = markService;
     }
 
+
     @PostMapping
-    public ResponseEntity<?> createMark(@RequestBody Mark mark)  {
+    public ResponseEntity<?> createMark(
+            @RequestBody Mark mark,
+            Principal principal
+    ) {
         try {
-            MarkDto savedMark = markService.createMark(mark);
+            MarkDto savedMark = markService.createMark(mark, principal.getName());
             return ResponseEntity.ok(savedMark);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
