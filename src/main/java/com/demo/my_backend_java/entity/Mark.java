@@ -2,6 +2,7 @@ package com.demo.my_backend_java.entity;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.locationtech.jts.geom.Point;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +11,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "marks")
@@ -28,8 +31,15 @@ public class Mark {
     
     private String message;
 
+    @Transient
     private Double latitude;
+
+    @Transient
     private Double longitude;
+
+    //postgis
+    @Column(columnDefinition = "geometry(Point, 4326)")
+    private Point location; // Saves to PostGIS database
 
     @Column(name = "view_count")
     private int viewCount = 0;
@@ -108,5 +118,21 @@ public class Mark {
 
     public void setPrivacy(boolean privacy) {
         this.privacy = privacy;
+    }
+
+    public Point getLocation() {
+        return location;
+    }
+
+    public void setLocation(Point location) {
+        this.location = location;
+    }
+
+    @PostLoad
+    private void populateLatLngAfterLoad() {
+        if (this.location != null) {
+            this.latitude = this.location.getY();
+            this.longitude = this.location.getX();
+        }
     }
 }

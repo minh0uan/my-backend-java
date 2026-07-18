@@ -3,6 +3,9 @@ package com.demo.my_backend_java.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +49,13 @@ public class MarkService {
 
         mark.setAppUser(user);
 
+        //post gis
+        if (mark.getLatitude() != null && mark.getLongitude() != null) {
+            GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
+            mark.setLocation(geometryFactory.createPoint(new Coordinate(mark.getLongitude(), mark.getLatitude())));
+        }
+        
         Mark savedMark = markRepo.save(mark);
 
         User author = savedMark.getAppUser();

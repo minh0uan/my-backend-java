@@ -21,6 +21,11 @@ public interface MarkRepo extends JpaRepository<Mark, Long>{
     List<Mark> findAllByAppUserUsernameAndPrivacyFalse(String username);
 
     // Calculates Earth's radius (6371000m) to find marks within 50 meters
-    @Query(value = "SELECT * FROM marks WHERE (6371000 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude)))) <= 50", nativeQuery = true)
+    // @Query(value = "SELECT * FROM marks WHERE (6371000 * acos(cos(radians(:lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:lng)) + sin(radians(:lat)) * sin(radians(latitude)))) <= 50", nativeQuery = true)
+    // List<Mark> findNearbyMarks(@Param("lat") Double lat, @Param("lng") Double lng);
+
+    // ST_DWithin checks if two geometries are within a specified distance.
+    // The 'true' at the end tells it to use spheroidal math (meters) instead of map degrees.
+    @Query(value = "SELECT * FROM marks WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326), 50, true)", nativeQuery = true)
     List<Mark> findNearbyMarks(@Param("lat") Double lat, @Param("lng") Double lng);
 }
