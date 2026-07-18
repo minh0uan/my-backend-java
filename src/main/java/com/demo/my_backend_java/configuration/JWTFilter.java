@@ -39,9 +39,14 @@ public class JWTFilter extends OncePerRequestFilter{
         String token = null;
         String loginId = null;
         
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            loginId = jwtService.extractUserName(token);
+        try {
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+                loginId = jwtService.extractUserName(token);
+            }
+        } catch (Exception e) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
         if (loginId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
