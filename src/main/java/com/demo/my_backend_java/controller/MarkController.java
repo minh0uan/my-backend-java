@@ -31,10 +31,7 @@ public class MarkController {
 
 
     @PostMapping
-    public ResponseEntity<?> createMark(
-            @RequestBody Mark mark,
-            Principal principal
-    ) {
+    public ResponseEntity<?> createMark(@RequestBody Mark mark,Principal principal) {
         try {
             MarkDto savedMark = markService.createMark(mark, principal.getName());
             return ResponseEntity.ok(savedMark);
@@ -44,11 +41,11 @@ public class MarkController {
     }
 
     @GetMapping("/nearby")
-    public ResponseEntity<List<MarkDto>> getNearbyMarks(@RequestParam Double lat, @RequestParam Double lng) {
+    public ResponseEntity<List<MarkDto>> getNearbyMarks(@RequestParam Double lat, @RequestParam Double lng, Principal principal) {
         
-        List<MarkDto> nearby = markService.getNearbyMarks(lat, lng);
+        List<MarkDto> nearby = markService.getNearbyMarks(lat, lng, principal.getName());
 
-        return ResponseEntity.ok(nearby);
+        return ResponseEntity.ok(nearby); 
     }
 
     @GetMapping("/user/{username}")

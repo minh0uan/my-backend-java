@@ -26,6 +26,19 @@ public interface MarkRepo extends JpaRepository<Mark, Long>{
 
     // ST_DWithin checks if two geometries are within a specified distance.
     // The 'true' at the end tells it to use spheroidal math (meters) instead of map degrees.
-    @Query(value = "SELECT * FROM marks WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326), 50, true)", nativeQuery = true)
-    List<Mark> findNearbyMarks(@Param("lat") Double lat, @Param("lng") Double lng);
+    @Query(value = "SELECT m.* FROM marks m " +
+            "WHERE ST_DWithin(m.location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326), 50, true) " +
+            "AND ( " +
+            "   m.privacy = false " + // Public mark
+            "   OR m.user_id = :userId " + // User's own private mark
+            "   OR EXISTS ( " + // Accepted friend's private mark
+            "       SELECT 1 FROM friendships f " +
+            "       WHERE f.status = 'ACCEPTED' " +
+            "       AND ( " +
+            "           (f.requested_id = m.user_id AND f.receiver_id = :userId) " +
+            "           OR (f.requested_id = :userId AND f.receiver_id = m.user_id) " +
+            "       ) " +
+            "   ) " +
+            ")", nativeQuery = true)
+    List<Mark> findNearbyMarks(@Param("lat") Double lat, @Param("lng") Double lng, @Param("userId") Long userId);
 }

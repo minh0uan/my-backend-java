@@ -74,8 +74,12 @@ public class MarkService {
         );
     }
 
-    public List<MarkDto> getNearbyMarks(Double lat, Double lng) {
-        List<Mark> rawMarks = markRepo.findNearbyMarks(lat, lng);
+    public List<MarkDto> getNearbyMarks(Double lat, Double lng, String username){
+
+        User requestingUser = userRepo.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User Does Not Exist"));
+
+        List<Mark> rawMarks = markRepo.findNearbyMarks(lat, lng, requestingUser.getId());
 
         List<MarkDto> safeMarks = new ArrayList<>();
 
