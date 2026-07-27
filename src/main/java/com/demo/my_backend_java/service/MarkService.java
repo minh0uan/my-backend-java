@@ -74,12 +74,32 @@ public class MarkService {
         );
     }
 
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371000; // Earth radius in meters
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }   
+
     public List<MarkDto> getNearbyMarks(Double lat, Double lng, String username){
 
         User requestingUser = userRepo.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User Does Not Exist"));
 
-        List<Mark> rawMarks = markRepo.findNearbyMarks(lat, lng, requestingUser.getId());
+        int limit = 100;
+        double[] radiuses = {250.0, 500.0, 800.0, 1000, 5000};
+        List<Mark> rawMarks = new ArrayList<>();
+
+        for (double radius : radiuses) {
+            rawMarks = markRepo.findNearbyMarks(lat, lng, requestingUser.getId(), radius, limit);
+            if (rawMarks.size() >= 3) {
+                break; 
+            }
+        }
 
         List<MarkDto> safeMarks = new ArrayList<>();
 
@@ -87,10 +107,18 @@ public class MarkService {
             User author = mark.getAppUser();
             UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
 
+            double distance = calculateDistance(lat, lng, mark.getLatitude(), mark.getLongitude());
+
+            String safeMessage = null;
+
+            if (distance <= 50) {
+                safeMessage = mark.getMessage();
+            } 
+
             MarkDto dto = new MarkDto(
                 mark.getId(),
                 safeAuthor,
-                mark.getMessage(),
+                safeMessage,
                 mark.getLatitude(),
                 mark.getLongitude(),
                 mark.getView(),
