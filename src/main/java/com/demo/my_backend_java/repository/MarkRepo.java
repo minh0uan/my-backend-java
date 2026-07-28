@@ -49,4 +49,20 @@ public interface MarkRepo extends JpaRepository<Mark, Long>{
         @Param("radius") double radius,
         @Param("limit") int limit
     );
+
+    @Query(value = "SELECT m.* FROM marks m " +
+            "LEFT JOIN friendships f ON ( " +
+            "   (f.requested_id = :userId AND f.receiver_id = m.user_id) " +
+            "   OR (f.requested_id = m.user_id AND f.receiver_id = :userId) " +
+            ") AND f.status = 'ACCEPTED' " +
+            "WHERE ST_Intersects(m.location, ST_MakeEnvelope(:minLng, :minLat, :maxLng, :maxLat, 4326)) " +
+            "AND (m.user_id = :userId OR f.id IS NOT NULL) " +
+            "LIMIT 100", nativeQuery = true)
+    List<Mark> findBoundedFriendsAndOwnMarks(
+        @Param("minLng") double minLng, 
+        @Param("minLat") double minLat, 
+        @Param("maxLng") double maxLng, 
+        @Param("maxLat") double maxLat, 
+        @Param("userId") Long userId
+    );
 }

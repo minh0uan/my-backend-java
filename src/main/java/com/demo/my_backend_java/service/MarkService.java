@@ -91,7 +91,7 @@ public class MarkService {
             .orElseThrow(() -> new RuntimeException("User Does Not Exist"));
 
         int limit = 100;
-        double[] radiuses = {250.0, 500.0, 800.0, 1000, 5000};
+        double[] radiuses = {250.0, 500.0, 800.0, 1200, 5000};
         List<Mark> rawMarks = new ArrayList<>();
 
         for (double radius : radiuses) {
@@ -130,6 +130,32 @@ public class MarkService {
             safeMarks.add(dto);
         }
 
+        return safeMarks;
+    }
+
+    public List<MarkDto> getBoundedMarks(double minLat, double maxLat, double minLng, double maxLng, double userLat, double userLng, String username) {
+        User requestingUser = userRepo.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User Does Not Exist"));
+
+        List<Mark> rawMarks = markRepo.findBoundedFriendsAndOwnMarks(minLng, minLat, maxLng, maxLat, requestingUser.getId());
+        List<MarkDto> safeMarks = new ArrayList<>();
+
+        for (Mark mark : rawMarks) {
+            User author = mark.getAppUser();
+            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+
+            // Calculate distance based on PHYSICAL user coordinates, not the camera bounding box
+            double distance = calculateDistance(userLat, userLng, mark.getLatitude(), mark.getLongitude());
+
+            // Lock the message if > 50m
+            String safeMessage = (distance <= 50) ? mark.getMessage() : null;
+
+            MarkDto dto = new MarkDto(
+                mark.getId(), safeAuthor, safeMessage, mark.getLatitude(), mark.getLongitude(),
+                mark.getView(), mark.getLikeCount(), mark.getCmtCount(), mark.isPrivacy()
+            );
+            safeMarks.add(dto);
+        }
         return safeMarks;
     }
 

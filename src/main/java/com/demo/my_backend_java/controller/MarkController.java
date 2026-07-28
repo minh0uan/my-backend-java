@@ -48,6 +48,17 @@ public class MarkController {
         return ResponseEntity.ok(nearby); 
     }
 
+    @GetMapping("/bounded")
+    public ResponseEntity<List<MarkDto>> getBoundedMarks(
+            @RequestParam double minLat, @RequestParam double maxLat,
+            @RequestParam double minLng, @RequestParam double maxLng,
+            @RequestParam double userLat, @RequestParam double userLng,
+            Principal principal) {
+        
+        List<MarkDto> bounded = markService.getBoundedMarks(minLat, maxLat, minLng, maxLng, userLat, userLng, principal.getName());
+        return ResponseEntity.ok(bounded); 
+    }
+
     @GetMapping("/user/{username}")
     public ResponseEntity<List<MarkDto>> getMarks(Principal principal,@PathVariable("username") String targetUser) {
         List<MarkDto> marks = markService.getMarks(principal.getName(), targetUser);
