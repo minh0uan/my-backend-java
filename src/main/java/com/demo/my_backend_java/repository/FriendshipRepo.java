@@ -11,7 +11,7 @@
     import com.demo.my_backend_java.entity.FriendshipStatus;
 
     public interface FriendshipRepo extends JpaRepository<Friendship, Long> {
-        @Query("SELECT f FROM Friendship f WHERE ((f.requester.id = :user1 AND f.receiver.id = :user2) OR (f.requester.id = :user2 AND f.receiver.id = :user1)) AND f.status = 'ACCEPTED'")
+        @Query("SELECT f FROM Friendship f WHERE (f.requester.id = :userId OR f.receiver.id = :userId) AND f.status = 'ACCEPTED'")
         List<Friendship> findAcceptedFriendships(@Param("userId") Long userId);
 
         @Query("SELECT COUNT(f) > 0 FROM Friendship f WHERE (f.requester.id = :user1 AND f.receiver.id = :user2) OR (f.requester.id = :user2 AND f.receiver.id = :user1)")

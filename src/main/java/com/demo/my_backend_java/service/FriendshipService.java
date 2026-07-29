@@ -26,16 +26,17 @@ public class FriendshipService {
         this.userRepo = userRepo;
     }
 
-    public FriendDto requestFriend(Friendship friendship) throws Exception {
-        if (friendship.getRequester() == null|| !userRepo.existsById(friendship.getRequester().getId())) {
-            throw new Exception("Error: Sender Does Not Exist");
-        }
+    public FriendDto requestFriend(Friendship friendship, String username) throws Exception {
+        User requester = userRepo.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        friendship.setRequester(requester); 
 
         if (friendship.getReceiver() == null || !userRepo.existsById(friendship.getReceiver().getId())) {
             throw new Exception("Error: Receiver Does Not Exist");
         }
 
-        Long requesterId = friendship.getRequester().getId();
+        Long requesterId = requester.getId();
         Long receiverId = friendship.getReceiver().getId();
 
         if (requesterId.equals(receiverId)) {
@@ -53,8 +54,8 @@ public class FriendshipService {
         friendship.setStatus(FriendshipStatus.PENDING);
         Friendship savedFriend = friendRepo.save(friendship);
 
-        User requester = savedFriend.getRequester();
-        UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+        User savedRequester = savedFriend.getRequester();
+        UserDto safeRequester = new UserDto(savedRequester.getId(), savedRequester.getUsername());
 
         User receiver = savedFriend.getReceiver();
         UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());

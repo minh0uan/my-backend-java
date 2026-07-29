@@ -1,5 +1,6 @@
 package com.demo.my_backend_java.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,9 @@ public class FriendshipController {
     }
 
     @PostMapping("/request")
-    public ResponseEntity<?> requestFriend(@RequestBody Friendship friendship) {
+    public ResponseEntity<?> requestFriend(@RequestBody Friendship friendship, Principal principal) {
         try {
-            FriendDto savedFriendship = friendService.requestFriend(friendship);
+            FriendDto savedFriendship = friendService.requestFriend(friendship, principal.getName());
             return ResponseEntity.ok(savedFriendship); 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
