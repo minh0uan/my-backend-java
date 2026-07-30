@@ -38,6 +38,16 @@ public class FriendshipController {
         }
     }
 
+    @GetMapping("/pending") 
+    public ResponseEntity<?> getPendingRequests(Principal principal) {
+        try {
+            List<FriendDto> pendingRequests = friendService.getPendingRequests(principal.getName());
+            return ResponseEntity.ok(pendingRequests);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PutMapping("/accept/{id}") 
     public ResponseEntity<?> acceptFriendStatus(@PathVariable Long id) {
         try {

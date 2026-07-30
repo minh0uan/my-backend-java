@@ -68,6 +68,30 @@ public class FriendshipService {
         );
     }
 
+    public List<FriendDto> getPendingRequests(String username) {
+        User currentUser = userRepo.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        List<Friendship> rawRequests = friendRepo.findPendingRequests(currentUser.getId());
+        List<FriendDto> safeRequests = new ArrayList<>();
+
+        for (Friendship request : rawRequests) {
+            User requester = request.getRequester();
+            UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+
+            User receiver = request.getReceiver();
+            UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+
+            safeRequests.add(new FriendDto(
+                request.getId(), 
+                safeRequester, 
+                safeReceiver, 
+                request.getStatus()
+            ));
+        }
+        return safeRequests;
+    }
+
     public FriendDto acceptFriendStatus(Long id) throws Exception {
         Friendship friendship = friendRepo.findById(id)
             .orElseThrow(() -> new Exception("Not found"));

@@ -20,6 +20,10 @@
         @Query("SELECT f FROM Friendship f WHERE (f.requester.id = :user1 AND f.receiver.id = :user2) OR (f.requester.id = :user2 AND f.receiver.id = :user1)")
         Optional<Friendship> findFriendshipBetweenUsers(@Param("user1") Long user1, @Param("user2") Long user2);
 
+        @Query("SELECT f FROM Friendship f WHERE f.receiver.id = :userId AND f.status = 'PENDING'")
+        List<Friendship> findPendingRequests(@Param("userId") Long userId);
+
+        //these are used for username
         @Query("SELECT COUNT(f) > 0 FROM Friendship f " +
                 "WHERE ((f.requester.username = :user1 AND f.receiver.username = :user2) " +
                 "   OR (f.requester.username = :user2 AND f.receiver.username = :user1)) " +
@@ -28,5 +32,9 @@
 
         default boolean isAcceptedFriend(String user1, String user2) {
             return existByUsernameAndStatus(user1, user2, FriendshipStatus.ACCEPTED);
+        }
+
+        default boolean isPendingFriend(String user1, String user2) {
+            return existByUsernameAndStatus(user1, user2, FriendshipStatus.PENDING);
         }
     }
