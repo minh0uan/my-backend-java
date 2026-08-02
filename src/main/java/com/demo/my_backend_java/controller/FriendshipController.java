@@ -59,9 +59,9 @@ public class FriendshipController {
     }
 
     @PutMapping("/decline/{id}") 
-    public ResponseEntity<?> declineFriendStatus(@PathVariable Long id) {
+    public ResponseEntity<?> declineFriendStatus(@PathVariable Long id, Principal principal) {
         try {
-            FriendDto updateFriend = friendService.declineFriendStatus(id);
+            FriendDto updateFriend = friendService.declineFriendStatus(id, principal.getName());
             return ResponseEntity.ok(updateFriend);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

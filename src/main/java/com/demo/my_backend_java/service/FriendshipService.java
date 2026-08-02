@@ -1,9 +1,11 @@
 package com.demo.my_backend_java.service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.demo.my_backend_java.dto.FriendDto;
@@ -21,9 +23,12 @@ public class FriendshipService {
 
     private final UserRepo userRepo;
 
-    public FriendshipService(FriendshipRepo friendshipRepo, UserRepo userRepo) {
+    private final StringRedisTemplate redisTemplate;
+
+    public FriendshipService(FriendshipRepo friendshipRepo, UserRepo userRepo, StringRedisTemplate redisTemplate) {
         this.friendRepo = friendshipRepo;
         this.userRepo = userRepo;
+        this.redisTemplate = redisTemplate;
     }
 
     public FriendDto requestFriend(Friendship friendship, String username) throws Exception {
@@ -46,6 +51,13 @@ public class FriendshipService {
 
         if (requesterId.equals(receiverId)) {
             throw new Exception("Error: Cannot Send Request To Self");
+        }
+
+        String blockKey = "cooldown_active:" + requesterId + ":" + receiverId;
+
+        //redis check if the 
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(blockKey))) {
+            throw new Exception("Error: Try Again Later!");
         }
 
         Optional<Friendship> friend = friendRepo.findFriendshipBetweenUsers(requesterId, receiverId);
@@ -118,24 +130,54 @@ public class FriendshipService {
         );
     }
 
-    public FriendDto declineFriendStatus(Long id) throws Exception {
+    public FriendDto declineFriendStatus(Long id, String username) throws Exception {
         Friendship friendship = friendRepo.findById(id)
-            .orElseThrow(() -> new Exception("Not found"));
-        
-        friendship.setStatus(FriendshipStatus.REJECTED);
-        Friendship savedFriend =  friendRepo.save(friendship);
+            .orElseThrow(() -> new Exception("Reject User Not Found"));
 
-        User requester = savedFriend.getRequester();
+        User receiver = userRepo.findByUsername(username)
+            .orElseThrow(() -> new Exception("Not Found"));    
+    
+        User requester = friendship.getRequester();
+
+        //create key 
+        String countKey = "rejection_count:" + requester.getId() + ":" + receiver.getId();
+        String blockKey = "cooldown_active:" + requester.getId() + ":" + receiver.getId();
+
+        //find if key exist in redis 
+        String currentCount = redisTemplate.opsForValue().get(countKey);
+        int count;
+
+        if (currentCount == null) {
+            count = 0;
+        } else {
+            count = Integer.parseInt(currentCount);
+        }
+
+        count++;
+
+        //apply penalty base on time rejected
+        long penalty = switch (count) {
+            case 1 -> 1;
+            case 2 -> 2;
+            case 3 -> 5;
+            case 4 -> 12;
+            default -> 24;
+        };
+
+        //save both to redis 
+        redisTemplate.opsForValue().set(blockKey, "blocked", Duration.ofHours(penalty)); //create a block key and delete it after such hours 
+        redisTemplate.opsForValue().set(countKey, String.valueOf(count), Duration.ofDays(30)); //if spammer leave the user untouch in 30 day redis reset
+
+        friendRepo.delete(friendship);
+
         UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
-
-        User receiver = savedFriend.getReceiver();
         UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
 
         return new FriendDto(
-            savedFriend.getId(),
+            friendship.getId(),
             safeRequester,
             safeReceiver,
-            savedFriend.getStatus()
+            FriendshipStatus.REJECTED
         );
     }
 
@@ -169,7 +211,7 @@ public class FriendshipService {
     public void deleteFriend(Long idUser1, Long idUser2) {
         Optional<Friendship> friendship = friendRepo.findFriendshipBetweenUsers(idUser1, idUser2);
 
-        if (friendship.isPresent() && friendship.get().getStatus() != FriendshipStatus.REJECTED) {
+        if (friendship.isPresent()) {
             friendRepo.deleteById(friendship.get().getId());   
         } else {
             throw new RuntimeException("Friendship Does Not Exist");
