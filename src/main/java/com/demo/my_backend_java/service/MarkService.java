@@ -25,6 +25,8 @@ import com.demo.my_backend_java.repository.MarkRepo;
 @Service
 public class MarkService {
     
+    private final GpsValidationService gpsValidationService;
+
     private final MarkRepo markRepo;
 
     private final UserRepo userRepo;
@@ -35,12 +37,13 @@ public class MarkService {
 
     private final FriendshipRepo friendshipRepo;
 
-    public MarkService (MarkRepo markRepo, UserRepo userRepo, CommentRepo cmtRepo, LikeRepo likeRepo, FriendshipRepo friendshipRepo) {
+    public MarkService (MarkRepo markRepo, UserRepo userRepo, CommentRepo cmtRepo, LikeRepo likeRepo, FriendshipRepo friendshipRepo, GpsValidationService gpsValidationService) {
         this.markRepo = markRepo;
         this.userRepo = userRepo;
         this.cmtRepo = cmtRepo;
         this.likeRepo = likeRepo;
         this.friendshipRepo = friendshipRepo;
+        this.gpsValidationService = gpsValidationService;
     }
 
     public MarkDto createMark(Mark mark, String username) throws Exception {
@@ -51,6 +54,8 @@ public class MarkService {
 
         //post gis
         if (mark.getLatitude() != null && mark.getLongitude() != null) {
+            gpsValidationService.validateAndSaveLocation(username, mark.getLatitude(), mark.getLongitude());
+
             GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
             mark.setLocation(geometryFactory.createPoint(new Coordinate(mark.getLongitude(), mark.getLatitude())));
@@ -72,17 +77,6 @@ public class MarkService {
             savedMark.getCmtCount(),
             savedMark.isPrivacy()
         );
-    }
-
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371000; // Earth radius in meters
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
     }   
 
     public List<MarkDto> getNearbyMarks(Double lat, Double lng, String username){
@@ -107,7 +101,7 @@ public class MarkService {
             User author = mark.getAppUser();
             UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
 
-            double distance = calculateDistance(lat, lng, mark.getLatitude(), mark.getLongitude());
+            double distance = gpsValidationService.calculateDistance(lat, lng, mark.getLatitude(), mark.getLongitude());
 
             String safeMessage = null;
 
@@ -145,7 +139,7 @@ public class MarkService {
             UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
 
             // Calculate distance based on PHYSICAL user coordinates, not the camera bounding box
-            double distance = calculateDistance(userLat, userLng, mark.getLatitude(), mark.getLongitude());
+            double distance = gpsValidationService.calculateDistance(userLat, userLng, mark.getLatitude(), mark.getLongitude());
 
             // Lock the message if > 50m
             String safeMessage = (distance <= 50) ? mark.getMessage() : null;
@@ -372,18 +366,25 @@ public class MarkService {
         );
     }
 
+    @Transactional
     public void deleteLike(Long id) throws Exception {
-        if(!likeRepo.existsById(id)) {
-            throw new RuntimeException("Mark Not Found");
-        }
+        Like like = likeRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Like Not Found"));
+
+        Mark mark = like.getMark();
+        mark.setLikeCount(Math.max(0, mark.getLikeCount() - 1));
+        markRepo.save(mark);
 
         likeRepo.deleteById(id);
     }
 
+    @Transactional
     public void deleteCmt(Long id) throws Exception {
-        if(!cmtRepo.existsById(id)) {
-            throw new RuntimeException("Mark Not Found"); 
-        }
+        Comment comment = cmtRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Comment Not Found"));
+
+        Mark mark = comment.getMark();
+        mark.setCmtCount(Math.max(0, mark.getCmtCount() - 1));
 
         cmtRepo.deleteById(id); 
     }
