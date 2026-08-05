@@ -17,7 +17,7 @@ public class GpsValidationService {
 
     public void validateAndSaveLocation(String username, double currentLat, double currentLong) {
         String userKey = "user_loca:" + username;
-        String lastLoca = redisTemplate.opsForValue().get(userKey);
+        String lastLoca = redisTemplate.opsForValue().get(userKey);//find the data in redis 
 
         long currentTime = Instant.now().getEpochSecond();
 
