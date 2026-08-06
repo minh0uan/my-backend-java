@@ -1,4 +1,4 @@
-package com.demo.my_backend_java.configuration;
+package com.demo.my_backend_java.filter;
 
 import java.io.IOException;
 
