@@ -14,7 +14,7 @@ import io.github.bucket4j.distributed.proxy.ProxyManager;
 public class RateLimitingService {
     private static final int REQUEST_PER_MINUTE = 10;
 
-    private ProxyManager<String> proxyManager;
+    private final ProxyManager<String> proxyManager;
 
     public RateLimitingService(ProxyManager<String> proxyManager) {
         this.proxyManager = proxyManager;

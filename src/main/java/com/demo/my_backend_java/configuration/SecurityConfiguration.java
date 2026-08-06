@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.demo.my_backend_java.filter.JWTFilter;
+import com.demo.my_backend_java.filter.RateLimitFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,9 +27,12 @@ public class SecurityConfiguration {
 
     private final JWTFilter jwtFilter;
 
-    public SecurityConfiguration(UserDetailsService userDetailsService, JWTFilter jwtFilter) {
+    private final RateLimitFilter rateLimitFilter;
+
+    public SecurityConfiguration(UserDetailsService userDetailsService, JWTFilter jwtFilter, RateLimitFilter rateLimitFilter) {
         this.userDetailsService = userDetailsService;
         this.jwtFilter = jwtFilter;
+        this.rateLimitFilter = rateLimitFilter;
         
     }
 
