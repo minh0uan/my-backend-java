@@ -3,6 +3,8 @@ package com.demo.my_backend_java.filter;
 import java.io.IOException;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,9 +31,14 @@ public class RateLimitFilter extends OncePerRequestFilter{
         HttpServletResponse response, 
         FilterChain filterChain) throws ServletException, IOException {
 
-        String clientIp = getClientIp(request);
+        String rateLimitKey = getClientIp(request);
 
-        Bucket tokenBucket  = rateLimitingService.resolveBucket(clientIp);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
+            rateLimitKey = authentication.getName();
+        }
+
+        Bucket tokenBucket  = rateLimitingService.resolveBucket(rateLimitKey);
 
         var probe = tokenBucket.tryConsumeAndReturnRemaining(1);
 

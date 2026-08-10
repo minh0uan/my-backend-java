@@ -81,6 +81,9 @@ public class MarkService {
 
     public List<MarkDto> getNearbyMarks(Double lat, Double lng, String username){
 
+        //validate the location of the read request 
+        gpsValidationService.validateAndSaveLocation(username, lat, lng);
+
         User requestingUser = userRepo.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User Does Not Exist"));
 
@@ -128,6 +131,10 @@ public class MarkService {
     }
 
     public List<MarkDto> getBoundedMarks(double minLat, double maxLat, double minLng, double maxLng, double userLat, double userLng, String username) {
+
+        //validate the read location
+        gpsValidationService.validateAndSaveLocation(username, userLat, userLng);
+
         User requestingUser = userRepo.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User Does Not Exist"));
 
