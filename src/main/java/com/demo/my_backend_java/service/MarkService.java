@@ -1,5 +1,6 @@
 package com.demo.my_backend_java.service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -157,6 +158,51 @@ public class MarkService {
             );
             safeMarks.add(dto);
         }
+        return safeMarks;
+    }
+
+    public List<MarkDto> getHistoricalMarks(Double userLat, Double userLong, Instant startDate, Instant endDate, String username) throws Exception{
+        User user = userRepo.findByUsername(username)
+            .orElseThrow(() -> new Exception("User Doesnt Exist"));
+
+        List<Mark> rawMarks = markRepo.findVisibleMarksByTimeRange(userLat, userLong, startDate, endDate);
+        List<MarkDto> safeMarks = new ArrayList<>();
+
+        for (Mark mark : rawMarks) {
+            User author = mark.getAppUser();
+
+            boolean isOwned = author.getUsername().equals(username);
+
+            if (mark.isPrivacy() && !isOwned) {
+                if (!friendshipRepo.isAcceptedFriend(author.getUsername(), user.getUsername())) {
+                    continue;
+                }
+            }
+
+            String safeMessage = mark.getMessage();
+            boolean isInteractable = gpsValidationService.isWithinInteractionRadius(userLat, userLong, mark.getLatitude(), mark.getLongitude());
+
+            if (!isInteractable && !isOwned) {
+                safeMessage = null;
+            }
+
+            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+
+            MarkDto dto = new MarkDto(
+                mark.getId(),
+                safeAuthor,
+                safeMessage, 
+                mark.getLatitude(),
+                mark.getLongitude(),
+                mark.getView(),
+                mark.getLikeCount(),
+                mark.getCmtCount(),
+                mark.isPrivacy()
+            );
+
+            safeMarks.add(dto);
+        }
+
         return safeMarks;
     }
 

@@ -1,5 +1,8 @@
 package com.demo.my_backend_java.entity;
 
+import java.time.Instant;
+
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.locationtech.jts.geom.Point;
@@ -49,6 +52,10 @@ public class Mark {
 
     @Column(name = "cmt_count")
     private int cmtCount = 0;
+
+    @CreationTimestamp
+    @Column(name = "create_at", updatable = false)
+    private Instant createAt;
 
     private boolean privacy; 
 
@@ -134,5 +141,13 @@ public class Mark {
             this.latitude = this.location.getY();
             this.longitude = this.location.getX();
         }
+    }
+
+    public Instant getCreatedAt() {
+        return createAt;
+    }
+
+    public void setCreatedAt(Instant createAt) {
+        this.createAt = createAt;
     }
 }

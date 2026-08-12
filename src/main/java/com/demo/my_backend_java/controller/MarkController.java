@@ -1,8 +1,10 @@
 package com.demo.my_backend_java.controller;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,6 +71,28 @@ public class MarkController {
     public ResponseEntity<MarkDto> getMarkById(@PathVariable("id") Long markId) {
         MarkDto mark = markService.getMarkById(markId);
         return ResponseEntity.ok(mark);
+    }
+
+    @GetMapping("/historical")
+    public ResponseEntity<?> getHistoricalMarks(
+            @RequestParam Double lat, 
+            @RequestParam Double lng,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate,
+            Principal principal) {
+            
+        if (startDate.isAfter(endDate)) {
+            return ResponseEntity.badRequest().body("Error: Start Date After End Date.");
+        }
+
+        try {
+            List<MarkDto> historicalMarks = markService.getHistoricalMarks(
+                lat, lng, startDate, endDate, principal.getName()
+            );
+            return ResponseEntity.ok(historicalMarks);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error Fetching Historical Marks.");
+        }
     }
 
     @PostMapping("/{id}/view") 

@@ -1,5 +1,6 @@
 package com.demo.my_backend_java.repository;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -64,5 +65,17 @@ public interface MarkRepo extends JpaRepository<Mark, Long>{
         @Param("maxLng") double maxLng, 
         @Param("maxLat") double maxLat, 
         @Param("userId") Long userId
+    );
+
+    @Query(value = """
+        SELECT * FROM marks 
+        WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326), 250, true)
+        AND created_at >= :startDate AND created_at <= :endDate
+        """, nativeQuery = true)
+    List<Mark> findVisibleMarksByTimeRange(
+        @Param("lat") Double lat, 
+        @Param("lng") Double lng,
+        @Param("startDate") Instant startDate,
+        @Param("endDate") Instant endDate
     );
 }

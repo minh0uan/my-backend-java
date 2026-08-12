@@ -91,4 +91,19 @@ public class GpsValidationService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }
+
+    public boolean isWithinInteractionRadius(Double userLat, Double userLng, Double markLat, Double markLng) {
+        final int EARTH_RADIUS_METERS = 6371000;
+
+        double latDistance = Math.toRadians(markLat - userLat);
+        double lonDistance = Math.toRadians(markLng - userLng);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(userLat)) * Math.cos(Math.toRadians(markLat))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return (EARTH_RADIUS_METERS * c) <= 50.0;
+    }
 }
