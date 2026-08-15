@@ -3,3 +3,14 @@ services:
     image: redis
     ports:
       - "6379:6379"
+  backend:
+    build: .
+    ports:
+      - "8088:8088"
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - redis
