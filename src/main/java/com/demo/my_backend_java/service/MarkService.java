@@ -90,7 +90,7 @@ public class MarkService {
 
         for (double radius : radiuses) {
             rawMarks = markRepo.findNearbyMarks(lat, lng, requestingUser.getId(), radius, limit);
-            if (rawMarks.size() >= 3) {
+            if (rawMarks.isEmpty()) {
                 break; 
             } 
         }
