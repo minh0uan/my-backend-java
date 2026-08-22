@@ -1,0 +1,8 @@
+steps:
+  - name: "gcr.io/cloud-builders/gradle"
+    args: ["build"]
+
+serviceAccount: "projects/project-b5993604-de5f-45b1-80b/serviceAccounts/256091572804-compute@developer.gserviceaccount.com"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
