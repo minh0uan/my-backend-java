@@ -52,7 +52,7 @@ public class UserController {
         }
     }   
 
-    //alele only
+    //sig se zen only
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
         try {
