@@ -52,7 +52,7 @@ public class UserController {
         }
     }   
 
-    //admin only
+    //alele only
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserProfile(@PathVariable Long id) {
         try {
