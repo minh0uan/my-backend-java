@@ -21,8 +21,10 @@ public class JWTService {
     @Value("${jwt.secret:a2FMTGFwcmlhblJhMDgxOWdlb3Nvc29uZ29rdTthbGV8ZQ==}")
     private String secretkey;
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+
         return Jwts.builder()
                 .claims()
                 .add(claims)

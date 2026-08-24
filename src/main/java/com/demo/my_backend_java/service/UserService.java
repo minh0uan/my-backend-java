@@ -74,7 +74,7 @@ public class UserService {
 
         User savedUSer = userRepo.save(user);
 
-        return new UserDto(savedUSer.getId(), savedUSer.getUsername());
+        return new UserDto(savedUSer.getId(), savedUSer.getUsername(), savedUSer.getRole());
     }
 
     public TokenResponse loginUser(LoginRequest loginRequest) throws Exception {
@@ -88,22 +88,24 @@ public class UserService {
 
         String username = userDetails.getUsername();
 
-        String token = jwtService.generateToken(username);
+        String role = userDetails.getAuthorities().iterator().next().getAuthority().replace("ROLE-", "");
+
+        String token = jwtService.generateToken(username, role);
         
         return new TokenResponse(token);
     }
- 
+
     public UserDto getUserProfile(Long id) throws Exception {
         User user =  userRepo.findById(id).orElseThrow(() -> new Exception("User not found"));
 
-        return new UserDto(user.getId(), user.getUsername());
+        return new UserDto(user.getId(), user.getUsername(), user.getRole());
     }
 
     public UserDto getCurrentUser(String username) throws Exception{    
         User user = userRepo.findByUsername(username)
             .orElseThrow(() -> new Exception("User not found"));
 
-        return new UserDto(user.getId(), user.getUsername());
+        return new UserDto(user.getId(), user.getUsername(), user.getRole());
     }
 
     public void deleteUser(String username) throws Exception {

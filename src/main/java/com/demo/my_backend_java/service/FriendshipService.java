@@ -72,10 +72,10 @@ public class FriendshipService {
         Friendship savedFriend = friendRepo.save(friendship);
 
         User savedRequester = savedFriend.getRequester();
-        UserDto safeRequester = new UserDto(savedRequester.getId(), savedRequester.getUsername());
+        UserDto safeRequester = new UserDto(savedRequester.getId(), savedRequester.getUsername(), savedRequester.getRole());
 
         User savedReceiver = savedFriend.getReceiver();
-        UserDto safeReceiver = new UserDto(savedReceiver.getId(), savedReceiver.getUsername());
+        UserDto safeReceiver = new UserDto(savedReceiver.getId(), savedReceiver.getUsername(), savedReceiver.getRole());
 
         return new FriendDto(
             savedFriend.getId(),
@@ -94,10 +94,10 @@ public class FriendshipService {
 
         for (Friendship request : rawRequests) {
             User requester = request.getRequester();
-            UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+            UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername(), requester.getRole());
 
             User receiver = request.getReceiver();
-            UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+            UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername(), receiver.getRole());
 
             safeRequests.add(new FriendDto(
                 request.getId(), 
@@ -117,10 +117,10 @@ public class FriendshipService {
         Friendship savedFriend =  friendRepo.save(friendship);
 
         User requester = savedFriend.getRequester();
-        UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+        UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername(), requester.getRole());
 
         User receiver = savedFriend.getReceiver();
-        UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+        UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername(), receiver.getRole());
 
         return new FriendDto(
             savedFriend.getId(),
@@ -170,8 +170,8 @@ public class FriendshipService {
 
         friendRepo.delete(friendship);
 
-        UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
-        UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+        UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername(), requester.getRole());
+        UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername(), receiver.getRole());
 
         return new FriendDto(
             friendship.getId(),
@@ -188,10 +188,10 @@ public class FriendshipService {
 
         for (Friendship friend : rawFriends) {
             User requester = friend.getRequester();
-            UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername());
+            UserDto safeRequester = new UserDto(requester.getId(), requester.getUsername(), requester.getRole());
 
             User receiver = friend.getReceiver();
-            UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername());
+            UserDto safeReceiver = new UserDto(receiver.getId(), receiver.getUsername(), receiver.getRole());
 
             FriendDto dto = new FriendDto(
                 friend.getId(),

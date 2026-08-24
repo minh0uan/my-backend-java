@@ -65,7 +65,7 @@ public class MarkService {
         Mark savedMark = markRepo.save(mark);
 
         User author = savedMark.getAppUser();
-        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername(), author.getRole());
 
         return new MarkDto(
             savedMark.getId(),
@@ -99,7 +99,7 @@ public class MarkService {
 
         for (Mark mark : rawMarks) {
             User author = mark.getAppUser();
-            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername(), author.getRole());
 
             double distance = gpsValidationService.calculateDistance(lat, lng, mark.getLatitude(), mark.getLongitude());
 
@@ -136,7 +136,7 @@ public class MarkService {
 
         for (Mark mark : rawMarks) {
             User author = mark.getAppUser();
-            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername(), author.getRole());
 
             // Calculate distance based on PHYSICAL user coordinates, not the camera bounding box
             double distance = gpsValidationService.calculateDistance(userLat, userLng, mark.getLatitude(), mark.getLongitude());
@@ -178,7 +178,7 @@ public class MarkService {
                 safeMessage = null;
             }
 
-            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername(), author.getRole());
 
             MarkDto dto = new MarkDto(
                 mark.getId(),
@@ -206,7 +206,7 @@ public class MarkService {
         Mark savedMark =  markRepo.save(mark);
 
         User author = savedMark.getAppUser();
-        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername(), author.getRole());
 
         return new MarkDto(
             savedMark.getId(),
@@ -248,9 +248,9 @@ public class MarkService {
         markRepo.save(targetMark);
         Comment savedComment = cmtRepo.save(cmt);
 
-        UserDto safeCommenter = new UserDto(rawCommenter.getId(), rawCommenter.getUsername());
+        UserDto safeCommenter = new UserDto(rawCommenter.getId(), rawCommenter.getUsername(), rawCommenter.getRole());
 
-        UserDto safeMarkAuthor = new UserDto(markOwner.getId(), markOwner.getUsername());
+        UserDto safeMarkAuthor = new UserDto(markOwner.getId(), markOwner.getUsername(), markOwner.getRole());
 
         Mark commentedMark = savedComment.getMark();
 
@@ -281,12 +281,12 @@ public class MarkService {
 
         for (Comment comment : rawComments) {
             User commenter = comment.getUser();
-            UserDto safeCommenter = new UserDto(commenter.getId(), commenter.getUsername());
+            UserDto safeCommenter = new UserDto(commenter.getId(), commenter.getUsername(), commenter.getRole());
 
             Mark commentedMark = comment.getMark();
 
             User markAuthor = commentedMark.getAppUser();
-            UserDto safeMarkAuthor = new UserDto(markAuthor.getId(), markAuthor.getUsername());
+            UserDto safeMarkAuthor = new UserDto(markAuthor.getId(), markAuthor.getUsername(), markAuthor.getRole());
 
             MarkDto safeCommentedMark = new MarkDto(
                 commentedMark.getId(),
@@ -370,7 +370,7 @@ public class MarkService {
         for (Mark mark : rawMarks) {
             
             User author = mark.getAppUser();
-            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+            UserDto safeAuthor = new UserDto(author.getId(), author.getUsername(), author.getRole());
 
             MarkDto dto = new MarkDto(
                 mark.getId(),
@@ -396,7 +396,7 @@ public class MarkService {
 
 
         User author = mark.getAppUser();
-        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername());
+        UserDto safeAuthor = new UserDto(author.getId(), author.getUsername(), author.getRole());
 
         return new MarkDto(
             mark.getId(),

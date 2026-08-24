@@ -1,6 +1,9 @@
 package com.demo.my_backend_java.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,6 +22,10 @@ public class User {
     private String phone;
 
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    // @Column(nullable = false)
+    private UserRoleStatus role = UserRoleStatus.FREE;
 
     private Double latitude;
     private Double longitude;
@@ -57,6 +64,14 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public UserRoleStatus getRole() {
+        return role;
+    }
+
+    public void setRole(UserRoleStatus role) {
+        this.role = role;
     }
 
     public Double getLatitude() {
