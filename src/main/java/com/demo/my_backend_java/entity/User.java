@@ -24,7 +24,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    // @Column(nullable = false)
+    @Column(nullable = false)
     private UserRoleStatus role = UserRoleStatus.FREE;
 
     private Double latitude;
