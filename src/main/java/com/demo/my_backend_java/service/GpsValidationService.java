@@ -55,7 +55,8 @@ public class GpsValidationService {
                                 //speed is in m/s
                                 double speed = distance / timeInBetween;
                             
-                                if (speed > 30) {
+                                //30km/h
+                                if (speed > 8.3) {
                                     throw new SecurityException("Impossible velocity: " + speed + " m/s");
                                 }
                             }
