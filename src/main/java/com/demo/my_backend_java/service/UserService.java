@@ -88,7 +88,7 @@ public class UserService {
 
         String username = userDetails.getUsername();
 
-        String role = userDetails.getAuthorities().iterator().next().getAuthority().replace("ROLE-", "");
+        String role = userDetails.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
         String token = jwtService.generateToken(username, role);
         
