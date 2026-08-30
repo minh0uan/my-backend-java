@@ -1,6 +1,33 @@
 steps:
-  - name: "gcr.io/cloud-builders/gradle"
-    args: ["build"]
+  # Step 1: Build the Docker image from the nested backend folder
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "gcr.io/$PROJECT_ID/geoso-backend:$COMMIT_SHA",
+        "my-backend-java",
+      ]
+
+  # Step 2: Push the image to Google Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/geoso-backend:$COMMIT_SHA"]
+
+  # Step 3: Deploy the new image to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "geoso-backend"
+      - "--image"
+      - "gcr.io/$PROJECT_ID/geoso-backend:$COMMIT_SHA"
+      - "--region"
+      - "asia-southeast1"
+
+# Ensure Cloud Build tracks the built image
+images:
+  - "gcr.io/$PROJECT_ID/geoso-backend:$COMMIT_SHA"
 
 serviceAccount: "projects/project-b5993604-de5f-45b1-80b/serviceAccounts/256091572804-compute@developer.gserviceaccount.com"
 
