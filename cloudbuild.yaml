@@ -1,13 +1,7 @@
 steps:
   # Step 1: Build the Docker image from the nested backend folder
   - name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "build",
-        "-t",
-        "gcr.io/$PROJECT_ID/geoso-backend:$COMMIT_SHA",
-        "my-backend-java",
-      ]
+    args: ["build", "-t", "gcr.io/$PROJECT_ID/geoso-backend:$COMMIT_SHA", "."]
 
   # Step 2: Push the image to Google Container Registry
   - name: "gcr.io/cloud-builders/docker"
@@ -29,7 +23,7 @@ steps:
 images:
   - "gcr.io/$PROJECT_ID/geoso-backend:$COMMIT_SHA"
 
-serviceAccount: "projects/project-b5993604-de5f-45b1-80b/serviceAccounts/256091572804-compute@developer.gserviceaccount.com"
+serviceAccount: "projects/project-b5993604-de5f-45b1-80b/serviceAccounts/25609157204-compute@developer.gserviceaccount.com"
 
 options:
   logging: CLOUD_LOGGING_ONLY
