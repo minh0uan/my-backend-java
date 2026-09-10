@@ -11,6 +11,7 @@ import com.demo.my_backend_java.dto.RegisterRequest;
 import com.demo.my_backend_java.dto.TokenResponse;
 import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.User;
+import com.demo.my_backend_java.entity.UserRoleStatus;
 import com.demo.my_backend_java.repository.UserRepo;
 
 @Service
@@ -115,5 +116,18 @@ public class UserService {
         }
         
         userRepo.deleteByUsername(username);    
+    }
+
+    public UserDto adminUpdate(String username) throws Exception{
+        User user = userRepo.findByUsername(username)
+            .orElseThrow((() -> new Exception("User Not Found")));
+
+        if (user.getRole() == UserRoleStatus.FREE) {
+            user.setRole(UserRoleStatus.ADMIN);
+        }
+
+        User savedUSer = userRepo.save(user);
+
+        return new UserDto(savedUSer.getId(), savedUSer.getUsername(), savedUSer.getRole());
     }
 }

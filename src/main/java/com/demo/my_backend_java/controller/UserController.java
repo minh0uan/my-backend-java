@@ -84,4 +84,18 @@ public class UserController {
             return ResponseEntity.status(500).body("Error: Could Not Delete User");
         }
     }
+
+    @PostMapping("admin/role")
+    // @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> adminUpdate(Principal principal) {
+        try {
+            userService.adminUpdate(principal.getName());
+            return ResponseEntity.ok("Admin Role Granted");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: Could Update To Admin Role");
+        }
+    }
+    
 }
