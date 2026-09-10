@@ -118,13 +118,11 @@ public class UserService {
         userRepo.deleteByUsername(username);    
     }
 
-    public UserDto adminUpdate(String username) throws Exception{
+    public UserDto upgradeToPremium(String username) throws Exception{
         User user = userRepo.findByUsername(username)
             .orElseThrow((() -> new Exception("User Not Found")));
 
-        if (user.getRole() == UserRoleStatus.FREE) {
-            user.setRole(UserRoleStatus.ADMIN);
-        }
+        user.setRole(UserRoleStatus.PREMIUM);
 
         User savedUSer = userRepo.save(user);
 

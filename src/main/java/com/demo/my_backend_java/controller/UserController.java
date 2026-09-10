@@ -85,17 +85,16 @@ public class UserController {
         }
     }
 
-    @PostMapping("admin/role")
-    // @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> adminUpdate(Principal principal) {
+    @PostMapping("admin/upgrade/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> upgradeToPremium(@PathVariable String username) {
         try {
-            userService.adminUpdate(principal.getName());
-            return ResponseEntity.ok("Admin Role Granted");
+            UserDto updatedUser = userService.upgradeToPremium(username);
+            return ResponseEntity.ok(updatedUser);
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: Could Update To Admin Role");
+            return ResponseEntity.status(500).body("Error: Could Update To Premium Role");
         }
     }
-    
 }
