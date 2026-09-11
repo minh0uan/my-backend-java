@@ -1,5 +1,6 @@
 package com.demo.my_backend_java.service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import com.demo.my_backend_java.dto.CommentDto;
 import com.demo.my_backend_java.dto.MarkDto;
 import com.demo.my_backend_java.dto.UserDto;
 import com.demo.my_backend_java.entity.User;
+import com.demo.my_backend_java.entity.UserRoleStatus;
 import com.demo.my_backend_java.entity.Comment;
 import com.demo.my_backend_java.entity.Like;
 import com.demo.my_backend_java.entity.Mark;
@@ -50,6 +52,22 @@ public class MarkService {
     public MarkDto createMark(Mark mark, String username) throws Exception {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new Exception("User Does Not Exist"));
+
+        //filter out the free user and check if the mark they creating is public or not
+        if (user.getRole() == UserRoleStatus.FREE && !mark.isPrivacy()) {
+
+            //trừ đi 24 tiếng kể từ lúc call lệnh
+            Instant twentyFourHoursAgo = Instant.now().minus(Duration.ofHours(24));
+
+            //inject 24 tiếng vừa qua, user id để nhận diện vào markRepo function 
+            //đếm số data được trả về khi chay query 
+            //hoạt động nhờ CreateAfter create_at > ?
+            long recentPublicMarks = markRepo.countByAppUserIdAndPrivacyFalseAndCreateAtAfter(user.getId(), twentyFourHoursAgo);
+
+            if (recentPublicMarks >= 5) {
+                throw new Exception("Free Tier Limit Of 5 Public Marks A Day Reached Upgrade To Premium To Continue");
+            }
+        }
 
         mark.setAppUser(user);
 

@@ -78,4 +78,8 @@ public interface MarkRepo extends JpaRepository<Mark, Long>{
         @Param("startDate") Instant startDate,
         @Param("endDate") Instant endDate
     );
+
+    //count the number of mark thats from the choosen user using the user id and some property of that mark
+    //the mark need to be public; create after means: create_at > ? 
+    long countByAppUserIdAndPrivacyFalseAndCreateAtAfter(Long userId, Instant timestamp);
 }
