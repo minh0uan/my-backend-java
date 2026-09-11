@@ -52,17 +52,29 @@ public class UserService {
 
         contact = contact.trim();
         if (contact.contains("@")) {
+            if (!contact.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                throw new Exception("Error: Invalid Email Format");
+            }
+
             if (userRepo.existsByEmail(contact)) {
                 throw new Exception("Error: Email In Used");
             }
+
             user.setEmail(contact);
-        } else if (contact.matches("^[0-9\\+\\-\\s]+$")) {
-            if (userRepo.existsByPhone(contact)) {
+        } else {
+
+            String cleanPhone = contact.replaceAll("[\\s\\-]", "");
+
+            if (!cleanPhone.matches("^\\+?[0-9]{9,15}$")) {
+                throw new Exception("Error: Invalid Phone Number Format");
+            }
+
+
+            if (userRepo.existsByPhone(cleanPhone)) {
                 throw new Exception("Error: Phone Number In Used");
             }
-            user.setPhone(contact);
-        } else {
-            throw new Exception("Error: Invalid, Please Enter A Valid Email Or Phone Number");
+            
+            user.setPhone(cleanPhone);
         }
 
         if (password == null || password.trim().isEmpty()) {
