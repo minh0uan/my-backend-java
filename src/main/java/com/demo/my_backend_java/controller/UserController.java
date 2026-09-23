@@ -94,7 +94,7 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: Could Update To Premium Role");
+            return ResponseEntity.status(500).body("Error: Couldnt Update To Premium Role");
         }
     }
 }
