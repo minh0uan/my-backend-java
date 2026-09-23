@@ -17,7 +17,7 @@ public class RedisConfig {
             //.entryTtl(Duration.ofMinutes(10)); //time to live example 10 min, this might be used to cache the whole database later
             .disableCachingNullValues()
             .serializeValuesWith(RedisSerializationContext.SerializationPair
-                .fromSerializer(RedisSerializer.json()));
+                .fromSerializer(RedisSerializer.json())); 
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(redisCacheConfiguration)
