@@ -94,7 +94,8 @@ public class MarkService {
             savedMark.getView(),
             savedMark.getLikeCount(),
             savedMark.getCmtCount(),
-            savedMark.isPrivacy()
+            savedMark.isPrivacy(),
+            savedMark.hasPhoto()
         );
     }   
 
@@ -136,7 +137,8 @@ public class MarkService {
                 mark.getView(),
                 mark.getLikeCount(),
                 mark.getCmtCount(),
-                mark.isPrivacy()
+                mark.isPrivacy(),
+                mark.hasPhoto()
             );
 
             safeMarks.add(dto);
@@ -163,8 +165,16 @@ public class MarkService {
             String safeMessage = (distance <= 50) ? mark.getMessage() : null;
 
             MarkDto dto = new MarkDto(
-                mark.getId(), safeAuthor, safeMessage, mark.getLatitude(), mark.getLongitude(),
-                mark.getView(), mark.getLikeCount(), mark.getCmtCount(), mark.isPrivacy()
+                mark.getId(), 
+                safeAuthor, 
+                safeMessage, 
+                mark.getLatitude(), 
+                mark.getLongitude(),
+                mark.getView(), 
+                mark.getLikeCount(), 
+                mark.getCmtCount(), 
+                mark.isPrivacy(),
+                mark.hasPhoto()
             );
             safeMarks.add(dto);
         }
@@ -207,7 +217,8 @@ public class MarkService {
                 mark.getView(),
                 mark.getLikeCount(),
                 mark.getCmtCount(),
-                mark.isPrivacy()
+                mark.isPrivacy(),
+                mark.hasPhoto()
             );
 
             safeMarks.add(dto);
@@ -235,7 +246,8 @@ public class MarkService {
             savedMark.getView(),
             savedMark.getLikeCount(),
             savedMark.getCmtCount(),
-            savedMark.isPrivacy()
+            savedMark.isPrivacy(),
+            savedMark.hasPhoto()
         );
     }
 
@@ -256,7 +268,7 @@ public class MarkService {
         //check privacy and allow user to comment on their own mark (edge case)
         if (targetMark.isPrivacy() && !markOwner.getUsername().equals(rawCommenter.getUsername())) {
             if (!friendshipRepo.isAcceptedFriend(markOwner.getUsername(), rawCommenter.getUsername())) {
-               throw new RuntimeException("Error: Cant Comment On A Private Mark");
+                throw new RuntimeException("Error: Cant Comment On A Private Mark");
             } 
         }
 
@@ -281,7 +293,8 @@ public class MarkService {
             commentedMark.getView(),
             commentedMark.getLikeCount(),
             commentedMark.getCmtCount(),
-            commentedMark.isPrivacy()
+            commentedMark.isPrivacy(),
+            commentedMark.hasPhoto()
         );
 
         return new CommentDto(
@@ -315,7 +328,8 @@ public class MarkService {
                 commentedMark.getView(),
                 commentedMark.getLikeCount(),
                 commentedMark.getCmtCount(),
-                commentedMark.isPrivacy()
+                commentedMark.isPrivacy(),
+                commentedMark.hasPhoto()
             );
 
             CommentDto dto = new CommentDto(
@@ -399,7 +413,8 @@ public class MarkService {
                 mark.getView(),
                 mark.getLikeCount(),
                 mark.getCmtCount(),
-                mark.isPrivacy()
+                mark.isPrivacy(),
+                mark.hasPhoto()
             );
 
             safeMarks.add(dto);
@@ -425,7 +440,8 @@ public class MarkService {
             mark.getView(),
             mark.getLikeCount(),
             mark.getCmtCount(),
-            mark.isPrivacy()
+            mark.isPrivacy(),
+            mark.hasPhoto()
         );
     }
 

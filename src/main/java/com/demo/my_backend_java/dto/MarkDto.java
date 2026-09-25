@@ -9,5 +9,6 @@ public record MarkDto(
     int viewCount,
     int likeCount,
     int cmtCount,
-    boolean privacy
+    boolean privacy,
+    boolean hasPhoto
 ) {}

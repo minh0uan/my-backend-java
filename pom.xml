@@ -113,8 +113,24 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- Source: https://mvnrepository.com/artifact/com.google.cloud/google-cloud-storage -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <version>2.73.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor -->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.21.0</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies> 
- 
+
     <build>
         <plugins>
             <plugin>

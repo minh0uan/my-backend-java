@@ -59,6 +59,21 @@ public class Mark {
 
     private boolean privacy; 
 
+    @Column(name = "photo_object_key")
+    private String photoObjectKey;
+
+    @Column(name = "photo_content_type")
+    private String photoContentType;
+
+    @Column(name = "photo_size_bytes")
+    private Long photoSizeBytes;
+
+    @Column(name = "photo_width")
+    private Integer photoWidth;
+
+    @Column(name = "photo_height")
+    private Integer photoHeight;
+
     public Long getId() {
         return id;
     }
@@ -149,5 +164,49 @@ public class Mark {
 
     public void setCreatedAt(Instant createAt) {
         this.createAt = createAt;
+    }
+
+    public String getPhotoObjectKey() { 
+        return photoObjectKey; 
+    }
+
+    public void setPhotoObjectKey(String photoObjectKey) { 
+        this.photoObjectKey = photoObjectKey; 
+    }
+
+    public String getPhotoContentType() { 
+        return photoContentType; 
+    }
+
+    public void setPhotoContentType(String photoContentType) { 
+        this.photoContentType = photoContentType; 
+    }
+
+    public Long getPhotoSizeBytes() { 
+        return photoSizeBytes; 
+    }
+
+    public void setPhotoSizeBytes(Long photoSizeBytes) { 
+        this.photoSizeBytes = photoSizeBytes; 
+    }
+
+    public Integer getPhotoWidth() { 
+        return photoWidth; 
+    }
+
+    public void setPhotoWidth(Integer photoWidth) { 
+        this.photoWidth = photoWidth; 
+    }
+
+    public Integer getPhotoHeight() { 
+        return photoHeight; 
+    }
+    
+    public void setPhotoHeight(Integer photoHeight) { 
+        this.photoHeight = photoHeight; 
+    }
+
+    public boolean hasPhoto() {
+        return this.photoObjectKey != null && !this.photoObjectKey.isBlank();
     }
 }
