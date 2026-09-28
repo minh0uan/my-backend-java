@@ -1,6 +1,10 @@
 package com.demo.my_backend_java.service;
 
 import com.demo.my_backend_java.dto.ProcessedImage;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,6 +14,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,7 +41,10 @@ public class ImageProcessingService {
         byte[] inputBytes = file.getBytes();
         
         //check to see if its a real photo 
+        //never trust file.getContentType()
         validateMagicBytes(inputBytes);
+
+        int orientation = extractOrientation(inputBytes);
 
         //deocode the image 
         BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(inputBytes));
@@ -44,8 +52,10 @@ public class ImageProcessingService {
             throw new IllegalArgumentException("PHOTO_INVALID: Could not decode image");
         }
 
+        BufferedImage orientedImage = applyOrientation(originalImage, orientation);
+
         //resize 
-        BufferedImage resizedImage = resizeProportional(originalImage, MAX_LONG_EDGE);
+        BufferedImage resizedImage = resizeProportional(orientedImage, MAX_LONG_EDGE);
 
         byte[] compressedData = compressToJpeg(resizedImage);
 
@@ -102,6 +112,7 @@ public class ImageProcessingService {
         Graphics2D g2d = output.createGraphics();
         
         // Use Bilinear interpolation for smooth downscaling
+        //RenderingHints.VALUE_INTERPOLATION_BILINEAR mathematically blend the color
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2d.drawImage(source, 0, 0, width, height, null);
         g2d.dispose(); // Always dispose Graphics2D to prevent memory leaks
@@ -144,5 +155,56 @@ public class ImageProcessingService {
         } while (bytes.length > MAX_TARGET_BYTES && currentQuality >= 0.40f); // Stop at 40% to prevent garbage images
 
         return bytes;
+    }
+
+    private int extractOrientation(byte[] inputBytes) {
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(inputBytes));
+            ExifIFD0Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+
+            if (directory != null && directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                return directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+            }
+        } catch (Exception ingored){
+
+        }
+        return 1;
+    }
+
+    private BufferedImage applyOrientation(BufferedImage image, int orientation) {
+        if (orientation <= 1) {
+            return image;
+        }
+
+        int w = image.getWidth();
+        int h = image.getHeight();
+
+        AffineTransform t = new AffineTransform();
+
+        switch (orientation) {
+            case 3 -> {
+                t.translate(w, h);
+                t.rotate(Math.PI); //rotate 180
+            }
+            case 6 -> {
+                t.translate(h, 0);
+                t.rotate(Math.PI / 2);
+                int temp = w; w = h; h = temp; //90
+            } 
+            case 8 -> {
+                t.translate(0, w);
+                t.rotate(-Math.PI / 2); //90
+                int temp = w; w = h; h = temp;
+            }
+            default -> {
+                return image;
+            }
+        }
+
+        BufferedImage transformed = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = transformed.createGraphics();
+        g.drawImage(image, t, null);
+        g.dispose();
+        return transformed;   
     }
 }
