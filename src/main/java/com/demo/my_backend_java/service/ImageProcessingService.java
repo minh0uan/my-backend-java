@@ -8,6 +8,7 @@ import com.drew.metadata.exif.ExifIFD0Directory;
 import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,6 +61,14 @@ public class ImageProcessingService {
         if (maxTargetBytes <= 0) {
             throw new IllegalStateException("max target byte must be greater than 0");
         }
+
+        if (maxPixel <- 0) {
+            throw new IllegalStateException("max pixel must be greater than 0");
+        }
+
+        if (maxLongEdge <= 0) {
+            throw new IllegalStateException(" max long edge must be greater than 0");
+        }
     }
 
     public ProcessedImage processAndCompress(MultipartFile file) throws IOException {
@@ -68,7 +77,7 @@ public class ImageProcessingService {
         }
 
         if (file.getSize() > maxInputBytes) {
-            throw new IllegalArgumentException("PHOTO_TOO_LARGE: File exceeds limit");
+            throw new IllegalArgumentException("PHOTO_TOO_LARGE: File exceeds configure input limit");
         }
 
         //split the byte into an array
@@ -269,45 +278,14 @@ public class ImageProcessingService {
         AffineTransform t = new AffineTransform();
 
         switch (orientation) {
-            case 2 -> {
-                t.scale(-1.0, 1.0);
-                t.translate(-w, 0);
-            }
-            case 3 -> {
-                t.translate(w, h);
-                t.rotate(Math.PI); //rotate 180
-            }
-            case 4 -> {
-                t.scale(1.0, -1.0);
-                t.translate(0, -h);
-            }
-            case 5 -> {
-                t.scale(-1.0, 1.0);
-                t.translate(-h, 0); 
-                t.translate(h, 0); 
-                t.rotate(Math.PI / 2); 
-                int temp = w; w = h; h = temp;
-            }
-            case 6 -> {
-                t.translate(h, 0);
-                t.rotate(Math.PI / 2);
-                int temp = w; w = h; h = temp; //90 
-            } 
-            case 7 -> {
-                t.scale(-1.0, 1.0); 
-                t.translate(-w, 0); 
-                t.translate(0, w); 
-                t.rotate(-Math.PI / 2); 
-                int temp = w; w = h; h = temp;
-            }
-            case 8 -> {
-                t.translate(0, w);
-                t.rotate(-Math.PI / 2); //90
-                int temp = w; w = h; h = temp;
-            }
-            default -> {
-                return image;
-            }
+            case 2 -> { t.scale(-1.0, 1.0); t.translate(-w, 0); } 
+            case 3 -> { t.translate(w, h); t.rotate(Math.PI); } 
+            case 4 -> { t.scale(1.0, -1.0); t.translate(0, -h); } 
+            case 5 -> { t.scale(-1.0, 1.0); t.translate(-h, 0); t.translate(h, 0); t.rotate(Math.PI / 2); int temp = w; w = h; h = temp; } 
+            case 6 -> { t.translate(h, 0); t.rotate(Math.PI / 2); int temp = w; w = h; h = temp; } 
+            case 7 -> { t.scale(-1.0, 1.0); t.translate(-w, 0); t.translate(0, w); t.rotate(-Math.PI / 2); int temp = w; w = h; h = temp; } 
+            case 8 -> { t.translate(0, w); t.rotate(-Math.PI / 2); int temp = w; w = h; h = temp; } 
+            default -> { return image; }
         }
 
         BufferedImage transformed = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
