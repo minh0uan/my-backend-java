@@ -59,10 +59,10 @@ public class Mark {
 
     private boolean privacy; 
 
-    @Column(name = "photo_object_key")
+    @Column(name = "photo_object_key", length = 512)
     private String photoObjectKey;
 
-    @Column(name = "photo_content_type")
+    @Column(name = "photo_content_type", length = 100)
     private String photoContentType;
 
     @Column(name = "photo_size_bytes")

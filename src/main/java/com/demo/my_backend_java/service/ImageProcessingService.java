@@ -5,6 +5,9 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 
+import jakarta.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,17 +27,48 @@ import java.util.Iterator;
 @Service
 public class ImageProcessingService {
 
-    private static final int MAX_INPUT_BYTES = 10 * 1024 * 1024; // 10MB
-    private static final int MAX_LONG_EDGE = 1024;
-    private static final long MAX_TARGET_BYTES = 500 * 1024; // 500KB
+    @Value("${photo.max-input-bytes:10485760}")
+    private int maxInputBytes;
+
+    @Value("${photo.max-long-edge:1024}")
+    private int maxLongEdge;
+
+    @Value("${photo.max-target-bytes:512000}")
+    private int maxTargetBytes;
+
+    @Value("${photo.min-long-edge:320}")
+    private int minLongEdge;
+
+    @Value("${photo.max-pixels:25000000}")
+    private int maxPixel;
+
+    //check if the configure value is corrupted
+    @PostConstruct 
+    private void init() {
+        if (minLongEdge > maxLongEdge) {
+            throw new IllegalStateException("long edge cannot be smaller than max edge");
+        }
+
+        if (minLongEdge < 320) {
+            throw new IllegalStateException("long edge too small, it needs to be at least 320");
+        }
+
+        if (maxInputBytes <= 0) {
+            throw new IllegalStateException(" max input must be greater than 0");
+        }
+
+        if (maxTargetBytes <= 0) {
+            throw new IllegalStateException("max target byte must be greater than 0");
+        }
+    }
 
     public ProcessedImage processAndCompress(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("PHOTO_EMPTY: Uploaded photo is empty");
         }
 
-        if (file.getSize() > MAX_INPUT_BYTES) {
-            throw new IllegalArgumentException("PHOTO_TOO_LARGE: File exceeds 10MB limit");
+        if (file.getSize() > maxInputBytes) {
+            throw new IllegalArgumentException("PHOTO_TOO_LARGE: File exceeds limit");
         }
 
         //split the byte into an array
@@ -46,26 +80,79 @@ public class ImageProcessingService {
 
         int orientation = extractOrientation(inputBytes);
 
-        //deocode the image 
-        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(inputBytes));
-        if (originalImage == null) {
-            throw new IllegalArgumentException("PHOTO_INVALID: Could not decode image");
+        BufferedImage originalImage = null;
+        BufferedImage orientedImage = null;
+        BufferedImage resizedImage = null;
+        BufferedImage smallerImage = null;
+
+        try {
+            //deocode the image 
+            originalImage = ImageIO.read(new ByteArrayInputStream(inputBytes));
+
+            if (originalImage == null) {
+                throw new IllegalArgumentException("PHOTO_INVALID: Could not decode image");
+            }
+
+            long totalPixels = (long) originalImage.getWidth() * originalImage.getHeight();
+            if (totalPixels > maxPixel) {
+                //originalImage.flush();
+                throw new IllegalArgumentException("PHOTO_TOO_LARGE: Image dimensions are dangerously large");
+            }
+
+            orientedImage = applyOrientation(originalImage, orientation);
+
+            //resize 
+            resizedImage = resizeProportional(orientedImage, maxLongEdge);
+
+            byte[] compressedData = compressToJpeg(resizedImage);
+
+            int finalWidth = resizedImage.getWidth();
+            int finalHeight = resizedImage.getHeight();
+
+            int currentEdge = maxLongEdge;
+
+            while (compressedData.length > maxTargetBytes && currentEdge > minLongEdge) {
+
+                currentEdge = Math.max(minLongEdge, currentEdge - 200);
+
+                if (smallerImage != null) {
+                    smallerImage.flush();
+                }
+
+                smallerImage = resizeProportional(resizedImage, currentEdge);
+                compressedData = compressToJpeg(smallerImage);
+
+                finalHeight = smallerImage.getHeight();
+                finalWidth = smallerImage.getWidth();
+            }
+
+            if (compressedData.length > maxTargetBytes) {
+                throw new IllegalArgumentException("PHOTO_TOO_LARGE: Could not compress the image within the configured limit");
+            }
+
+            return new ProcessedImage(
+                compressedData,
+                "image/jpeg",
+                compressedData.length,
+                finalWidth,
+                finalHeight
+            );
+        } finally {
+            if (originalImage != null) {
+                originalImage.flush();
+            }
+            if (orientedImage != null && orientedImage != originalImage) {
+                orientedImage.flush();
+            }
+            if (resizedImage != null && resizedImage != orientedImage) {
+                resizedImage.flush();
+            }
+            if (smallerImage != null) {
+                smallerImage.flush();
+            }
         }
 
-        BufferedImage orientedImage = applyOrientation(originalImage, orientation);
-
-        //resize 
-        BufferedImage resizedImage = resizeProportional(orientedImage, MAX_LONG_EDGE);
-
-        byte[] compressedData = compressToJpeg(resizedImage);
-
-        return new ProcessedImage(
-            compressedData,
-            "image/jpeg",
-            compressedData.length,
-            resizedImage.getWidth(),
-            resizedImage.getHeight()
-        );
+        
     }
 
     //magic byte to verify the file if its a picture or not
@@ -152,7 +239,7 @@ public class ImageProcessingService {
             bytes = baos.toByteArray();
             currentQuality -= 0.10f; // Drop quality by 10% if it's still too big
             
-        } while (bytes.length > MAX_TARGET_BYTES && currentQuality >= 0.40f); // Stop at 40% to prevent garbage images
+        } while (bytes.length > maxTargetBytes && currentQuality >= 0.40f); // Stop at 40% to prevent garbage images
 
         return bytes;
     }
@@ -182,15 +269,37 @@ public class ImageProcessingService {
         AffineTransform t = new AffineTransform();
 
         switch (orientation) {
+            case 2 -> {
+                t.scale(-1.0, 1.0);
+                t.translate(-w, 0);
+            }
             case 3 -> {
                 t.translate(w, h);
                 t.rotate(Math.PI); //rotate 180
             }
+            case 4 -> {
+                t.scale(1.0, -1.0);
+                t.translate(0, -h);
+            }
+            case 5 -> {
+                t.scale(-1.0, 1.0);
+                t.translate(-h, 0); 
+                t.translate(h, 0); 
+                t.rotate(Math.PI / 2); 
+                int temp = w; w = h; h = temp;
+            }
             case 6 -> {
                 t.translate(h, 0);
                 t.rotate(Math.PI / 2);
-                int temp = w; w = h; h = temp; //90
+                int temp = w; w = h; h = temp; //90 
             } 
+            case 7 -> {
+                t.scale(-1.0, 1.0); 
+                t.translate(-w, 0); 
+                t.translate(0, w); 
+                t.rotate(-Math.PI / 2); 
+                int temp = w; w = h; h = temp;
+            }
             case 8 -> {
                 t.translate(0, w);
                 t.rotate(-Math.PI / 2); //90
