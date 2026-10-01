@@ -8,7 +8,6 @@ import com.drew.metadata.exif.ExifIFD0Directory;
 import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,24 +27,34 @@ import java.util.Iterator;
 @Service
 public class ImageProcessingService {
 
-    @Value("${photo.max-input-bytes:10485760}")
     private int maxInputBytes;
 
-    @Value("${photo.max-long-edge:1024}")
     private int maxLongEdge;
 
-    @Value("${photo.max-target-bytes:512000}")
     private int maxTargetBytes;
 
-    @Value("${photo.min-long-edge:320}")
     private int minLongEdge;
 
-    @Value("${photo.max-pixels:25000000}")
     private int maxPixel;
 
-    //check if the configure value is corrupted
-    @PostConstruct 
-    private void init() {
+    public ImageProcessingService(
+            @Value("${photo.max-input-bytes:10485760}") int maxInputBytes,
+            @Value("${photo.max-long-edge:1024}") int maxLongEdge,
+            @Value("${photo.max-target-bytes:512000}") int maxTargetBytes,
+            @Value("${photo.min-long-edge:320}") int minLongEdge,
+            @Value("${photo.max-pixels:25000000}") int maxPixel) {
+
+        this.maxInputBytes = maxInputBytes;
+        this.maxLongEdge = maxLongEdge;
+        this.maxTargetBytes = maxTargetBytes;
+        this.minLongEdge = minLongEdge;
+        this.maxPixel = maxPixel;
+
+        validateConfiguration();
+    }
+
+    //check if the plugin value is corrupted.
+    private void validateConfiguration() {
         if (minLongEdge > maxLongEdge) {
             throw new IllegalStateException("long edge cannot be smaller than max edge");
         }
@@ -62,7 +71,7 @@ public class ImageProcessingService {
             throw new IllegalStateException("max target byte must be greater than 0");
         }
 
-        if (maxPixel <- 0) {
+        if (maxPixel <= 0) {
             throw new IllegalStateException("max pixel must be greater than 0");
         }
 
